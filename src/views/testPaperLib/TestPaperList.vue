@@ -1,0 +1,319 @@
+<template>
+    <div class="centoer">
+        <p class="title">试卷库</p>
+        <div class="btns">
+            <el-button type="primary" size="mini" v-on:click="toAdd">新增</el-button>
+            <el-button type="warning" size="mini" @click="deleteAll">删除</el-button>
+        </div>
+        <div class="selecteds">
+            <el-select v-model="params.paperType" popper-class="el-select" placeholder="试卷分类" v-on:change="change1">
+                <el-option v-for="(item,index) in options" :key="index" :label="item.label" :value="item.value"></el-option>
+            </el-select>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <el-select v-model="params.paperMode" popper-class="el-select" placeholder="组卷方式" v-on:change="change1">
+                <el-option v-for="(item,index) in options1" :key="index" :label="item.label" :value="item.value"></el-option>
+            </el-select>
+            <el-input class="saerch_input fr" placeholder="搜索试卷名称" v-model.trim="params.input" @keyup.enter.native="searchHandle">
+                <i class="el-icon-search" slot="suffix" @click="searchHandle"> </i>
+            </el-input>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <td><el-checkbox v-model="quaxuan" size="100"></el-checkbox></td>
+                    <td>试卷分类</td>
+                    <td>组卷方式</td>
+                    <td>试卷名称</td>
+                    <td>题目个数</td>
+                    <td>总分</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr v-for="(item,index) in tableData" :key="index">
+                    <td><el-checkbox v-model="item.isCheckd" size="100"></el-checkbox></td>
+                    <td>{{item.paperType==0?'问卷调查':item.paperType==1?'在线考试':item.paperType==2?'知识竞赛':''}}</td>
+                    <td>{{item.paperMode==0?'选题组卷':item.paperMode==1?'抽题组卷':''}}</td>
+                    <td>{{item.paperName}}</td>
+                    <td>{{item.paperNumber}}</td>
+                    <td>{{item.paperTotalScore}}</td>
+                    <td>{{item.paperCreaterName}}</td>
+                    <td>{{$moment(item.paperCreateTime).format('YYYY-MM-DD')}}</td>
+                    <td style="color: rgb(253, 99, 31)" v-if="item.paperStatus==0">{{item.paperStatus==0?'未使用':item.paperStatus==1?'已使用 ':item.paperStatus==2?'已删除':''}}</td>
+                    <td v-else style="color:rgb(56, 198, 182)">{{item.paperStatus==0?'未使用':item.paperStatus==1?'已使用 ':item.paperStatus==2?'已删除':''}}</td>
+                    <td>
+                        <span style="cursor:pointer;color: rgb(56, 198, 182);" @click="createTest(item.paperId,item.paperName,item.paperType)">创建活动</span>
+                        <span style="cursor:pointer;color: rgb(56, 198, 182);margin-left: 10px" @click="toInfo(item.paperId,item.paperNumber,item.paperTotalScore)">查看</span>
+                        <span style="cursor:pointer;color: rgb(56, 198, 182);margin-left: 10px" @click="copyy(item.paperId,item.paperName)">复制</span>
+                        <span v-if="item.paperStatus==0" style="cursor:pointer;color: rgb(56, 198, 182);margin-left: 10px" @click="updatePaper(item)">修改</span>
+                        <span v-if="item.paperStatus==0" style="cursor:pointer;color: rgb(56, 198, 182);margin-left: 10px" @click="deletee(item.paperId)">删除</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <pageVue :pageData="page" @chekdpageCallcak="changedPage"></pageVue>
+        </div>
+        <!--弹窗-->
+        <div class="T" id="bbb" style="display: none">
+            <div class="tan3 bgw rel" style="height: 350px">
+                <div class="h50 lh50 bgf1 fs16 cor0 pdl30 fb" style="background-color: #319D8E;color: #ffffff">复制试卷</div>
+                <div style="margin-left: 15%;margin-top: 10%">
+                    <div style="margin-top: 5%">
+                        <p style="font-size: 18px">修改试卷名称：</p>
+                        <input type="text" class="ww80 h40 lh40 pdl20 borf1 ras4" v-model.trim="copyParm.paperName">
+                    </div>
+                </div>
+                <div class="t-c mgt100 mgb50">
+                    <a style="cursor:pointer;color: #ffffff" class="dinb w140 h40 lh40 t-c corw ras4 hov8 bort colorr" @click="tijiao">提交</a>
+                    <a style="cursor:pointer;background-color: #d3d3d3" class="dinb w140 h40 lh40 t-c cor01 bgf1 ras4 hov8 mgl5" @click="quxiao">取消</a>
+                </div>
+            </div>
+        </div>
+        <!--弹窗end-->
+    </div>
+</template>
+
+<script>
+    import $ from 'jquery'
+    export default {
+        name: "TestPaperList",
+        data() {
+            return {
+                listId:[],// 要删除的试卷id的集合
+                quaxuan:false,
+                options: [{
+                    value: '9',
+                    label: '全部'
+                },{
+                    value: '0',
+                    label: '问卷调查'
+                }, {
+                    value: '1',
+                    label: '在线考试'
+                }, {
+                    value: '2',
+                    label: '知识竞赛'
+                }],
+                options1: [{
+                    value: '9',
+                    label: '全部'
+                },{
+                    value: '0',
+                    label: '选题组卷'
+                }, {
+                    value: '1',
+                    label: '抽题组卷'
+                }],
+                params:{
+                    paperType:9,
+                    paperMode:9,
+                    input:null,
+                    num:1,
+                    size:10
+                },
+                tableData: [],
+                totalPage:0,
+                copyParm:{
+                    usrId:1,//登陆用户id
+                    paperId:null,
+                    paperName:""
+                }
+            }
+        },
+        created(){
+            sessionStorage.setItem("parmQuestion","");
+            initData(this);
+        },
+        mounted() {
+
+        },
+        watch:{
+            'quaxuan': function(newVal){
+                if (newVal==true) {
+                    for (var i=0;i<this.tableData.length;i++){
+                        this.tableData[i].isCheckd=true;
+                    }
+                }
+                if (newVal==false) {
+                    for (var j=0;j<this.tableData.length;j++){
+                        this.tableData[j].isCheckd=false;
+                    }
+                }
+            },
+        },
+        computed:{
+            page() {
+                return {
+                    curPage: this.params.num,//当前页吗
+                    totalCount: this.totalPage,//总条数
+                    pageSize: this.params.size,//页面大小
+                }
+            }
+        },
+        methods:{
+            updatePaper:function(item){
+               var parmQuestion={
+                        paperId:item.paperId,//试卷表主键
+                        paperType:item.paperType,//试卷分类
+                        paperMode:item.paperMode,//组卷方式
+                        paperName:item.paperName,//试卷名称
+                        paperNumber:item.paperNumber,//题目个数
+                        paperTotalScore:item.paperTotalScore,//题目总分
+                        paperStatus:item.paperStatus,//试卷状态
+                        paperCreater:item.paperCreater,//创建人主键
+                        paperCreateTime:item.paperCreateTime,//创建时间
+                        typeList:[],//存放不同类型的试题个数键值对
+                        difficultyList:[],//存放不同难度的试题个数键值对
+                        tSubjectRefPapers:[],//试卷试题关联表集合
+                        difficulty:null,//查询条件：试题难度
+                        type:item.paperType,//查询条件：试题类型
+                        num:1,//
+                        size:6,
+                        input:null,//查询条件
+                        judge:1//用来判断试修改还是新增 1是修改
+                }
+                this.$axios({
+                    url: '/biz/testPaperLib/querySubjectRefPapers',
+                    method: 'get',
+                    params: {paperId:item.paperId},
+                }).then((res) => {
+                    if (res.code == 200) {
+                        parmQuestion.tSubjectRefPapers=res.obj;
+                        sessionStorage.setItem("parmQuestion",JSON.stringify(parmQuestion));
+                        this.$router.push({name:'TopicSelection'})
+                    }else {
+                        this.$alert("网络繁忙，请稍后再试！")
+                    }
+                }).catch((res) => {
+                    console.log(res)
+                })
+            },
+            copyy:function(paperId,paperName){
+                this.copyParm.paperName=paperName;
+                this.copyParm.paperId=paperId;
+                $(".T").show();
+            },
+            tijiao:function(){
+                this.$axios({
+                    url: '/biz/testPaperLib/copyTestPaper',
+                    method: 'get',
+                    params: this.copyParm,
+                }).then((res) => {
+                    if (res.code == 200) {
+                        this.$alert("复制试卷成功！")
+                        $(".T").hide();
+                        initData(this);
+                    }else {
+                        $(".T").hide();
+                        this.$alert("网络繁忙，请稍后再试！")
+                    }
+                }).catch((res) => {
+                    console.log(res)
+                })
+            },
+            quxiao:function(){
+                $('.T').hide();
+            },
+            toInfo(paperId,paperNumber,paperTotalScore){
+                this.$router.push({name:'TestPaperInfo',params:{'paperId':paperId,'paperNumber':paperNumber,'paperTotalScore':paperTotalScore}})
+            },
+            createTest(paperId,paperName,paperType){
+                this.$router.push({name:'addActiviti',params:{'paperId':paperId,'paperName':paperName,'paperType':paperType,'flet':1}})
+            },
+            deletee(paperId){
+                this.listId=[];
+                this.listId.push(paperId);
+                delet(this);
+            },
+            deleteAll(){
+                this.listId=[];
+                for (var i=0;i<this.tableData.length;i++){
+                    if (this.tableData[i].isCheckd==true && this.tableData[i].paperStatus==0) {
+                        this.listId.push(this.tableData[i].paperId);
+                    }
+                }
+                if (this.listId.length<1) {
+                    this.$alert("请选择要删除的试卷！")
+                    return
+                }
+                delet(this);
+            },
+            searchHandle() {
+                this.params.num = 1;
+                initData(this);
+            },
+            changedPage(index) {
+                this.params.num = index;
+                initData(this);
+            },
+            change1:function () {
+                this.params.num = 1;
+                initData(this);
+            },
+            toAdd:function () {
+                this.$router.push("AddTestPaper");
+            }
+        }
+    }
+
+    function initData(_this) {
+        if (_this.params.paperType == 9 || _this.params.paperType == "9") {
+            _this.params.paperType=null;
+        }
+        if (_this.params.paperMode == 9 || _this.params.paperMode == "9") {
+            _this.params.paperMode=null;
+        }
+        _this.$axios({
+            url: '/biz/testPaperLib/selectDogCardHandleList',
+            method: 'get',
+            params: _this.params,
+            // isloading: true,
+        }).then((res) => {
+            if (res.code == 200) {
+                if (res.obj == null) {
+                    _this.tableData = []
+                    _this.totalPage = 0
+                } else {
+                    res.obj.list.map(item => {
+                        item.isCheckd = false;//默认未选中
+                    })
+                    _this.tableData = res.obj.list
+                    _this.totalPage = res.obj.total
+                }
+            }
+        }).catch((res) => {
+            console.log(res)
+        })
+    }
+
+    function delet(_this) {
+        _this.$confirm("确定删除试卷吗？").then(_=>{
+            _this.$axios({
+                url: '/biz/testPaperLib/deleteTestPaper',
+                method: 'post',
+                headers:{
+                    'Content-Type': 'application/json;charset=UTF-8'
+                },
+                data: JSON.stringify(_this.listId),
+            }).then((res) => {
+                if (res.code == 200) {
+                    _this.$alert("删除成功！")
+                    initData(_this);
+                }
+            }).catch((res) => {
+                console.log(res)
+            })
+        }).catch(() => {
+        })
+    }
+</script>
+
+<style scoped>
+    .T{position: fixed;width: 100%;height: 100%;left: 0;top: 0;z-index: 100000;background-color: rgba(0,0,0,.5);}
+    .tan3{width: 520px;height: 400px; position: absolute;left: 50%;top: 50%;margin: -200px 0 0 -260px;border-top: 2px solid #319D8E;}
+    .bort{border: none;}
+    .cor01{color: #010101}
+    .colorr{background-color: #319D8E}
+</style>

@@ -1,0 +1,37 @@
+<template>
+    <!--选题页面-->
+    <div class="centoer">
+        <p class="title">试卷库<img src="../../../public/img/separator.png"/>新增</p>
+        <div class="btns">
+            <el-button type="primary" size="mini">上一步</el-button>
+            <el-button type="primary" size="mini">下一步</el-button>
+        </div>
+        <div class="tablPerp">
+            <div class="wai">
+                <div class="nei">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "TopicSelection"
+    }
+</script>
+
+<style scoped>
+    .wai{
+        border-top: solid 1px #ddd
+    }
+    .nei{
+        margin:auto;
+        margin-top: 100px;
+        width:500px;
+        height:150px;
+    }
+</style>

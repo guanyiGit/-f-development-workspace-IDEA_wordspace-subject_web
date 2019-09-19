@@ -1,0 +1,170 @@
+<template>
+    <div class="centoer">
+        <p class="title">用户权限</p>
+        <div class="btns">
+            <el-button type="primary" size="mini" @click="toAdd">新增</el-button>
+            <!--<el-button type="primary" size="mini" @click="toUpdate1">启用</el-button>
+            <el-button type="primary" size="mini" @click="toUpdate2">禁用</el-button>-->
+            <!--<el-button type="primary" size="mini">模板下载</el-button>
+            <el-button type="warning" size="mini">删除</el-button>-->
+        </div>
+        <div class="selecteds">
+            <el-select v-model="params.role" popper-class="el-select" placeholder="所属角色">
+                <el-option v-for="item in roleList"
+                           :label="item.roleName"
+                           :key="item.roleId"
+                           :value="item.roleId"
+                >
+                </el-option>
+            </el-select>
+            <el-input class="saerch_input fr" placeholder="用户姓名/联系方式" v-model.trim="params.searchKey">
+                <i class="el-icon-search" slot="suffix" @click="searchHandle" > </i>
+            </el-input>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <!--<td> <el-checkbox ></el-checkbox></td>-->
+                    <td>登录名</td>
+                    <td>用户姓名</td>
+                    <td>联系方式</td>
+                    <td>创建时间</td>
+                    <td>所属角色</td>
+                    <td>用户状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr v-for="(item,index) in list" :key="index">
+                    <!--<td><el-checkbox ></el-checkbox></td>-->
+                    <td>{{item.username}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.phone}}</td>
+                    <td>{{item.createTime | formatDate()}}</td>
+                    <td>{{item.roleName}}</td>
+                    <td v-if="item.status==0" style="color: green">启用</td>
+                    <td v-else style="color: red">禁用</td>
+                    <td>
+                        <span style="cursor:pointer;color: #38C6B6;" @click="toInfo(item)">查看</span>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <div>
+            <!--<pageVue></pageVue>-->
+            <page-vue :pageData="pageData" @chekdpageCallcak="changedPage"></page-vue>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Permission",
+        data() {
+            return {
+                params:{//请求参数
+                    role:null,
+                    pageNum: 1,
+                    pageSize:10,
+                    searchKey:null
+                },
+                totalCount:0,
+                list:[],
+                roleList:[
+
+                ],
+                status:0,
+                userId:null
+                
+
+            }
+        },
+        created() {
+            initRoleList(this);
+            initData(this)
+        },
+        mounted() {
+
+        },
+        computed: {
+            //分页参数
+            pageData() {
+                return {
+                    curPage: this.params.pageNum,//当前页吗
+                    totalCount: this.totalCount,//总条数
+                    pageSize: this.params.pageSize,//页面大小}
+
+                }
+            },
+
+        },
+        methods:{
+            toInfo(item){
+                sessionStorage.setItem("userII",JSON.stringify(item))
+                this.$router.push({name:'userInfo'})
+            },
+            changedPage(pageNum){
+                this.params.pageNum = pageNum;
+                initData(this)
+            },
+            toAdd :function () {
+                this.$router.push("addUser");
+            },
+            toUpdate1:function () {
+                updateStatus(this);
+            },
+            toUpdate2:function () {
+                this.status=1;
+                updateStatus(this);
+            },
+            searchHandle:function () {
+                initData(this)
+            }
+        }
+    }
+
+function initRoleList(_this) {
+    _this.$axios({
+        url: '/biz/user/findRoleList',
+    }).then((res) => {
+        if (res.code==200) {
+            _this.roleList=res.obj;
+        }
+    }).catch((err) => {
+        console.log(err);
+    })
+}
+    function initData(_this) {
+        _this.$axios({
+            method: 'post',
+            url: '/biz/user/findUserList',
+            params: _this.params
+        }).then((res) => {
+            console.log(res);
+            if (res.code==200) {
+                _this.totalCount=res.obj.total;
+                _this.list=res.obj.list;
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
+    function updateStatus(_this) {
+        _this.$axios({
+            method: 'post',
+            url: '/biz/user/findUserList',
+            params: _this.params
+        }).then((res) => {
+            if (res.code==200) {
+                _this.totalCount=res.obj.total;
+                _this.list=res.obj.list;
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+</script>
+
+<style scoped>
+
+</style>

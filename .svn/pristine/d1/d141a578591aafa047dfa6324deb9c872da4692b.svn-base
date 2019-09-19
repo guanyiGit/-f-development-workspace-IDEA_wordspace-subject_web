@@ -1,0 +1,141 @@
+<template>
+    <div class="centoer">
+        <p class="title">试卷库</p>
+        <div class="btns">
+            <el-button type="primary" size="mini" v-on:click="toAdd">新增</el-button>
+            <el-button type="warning" size="mini">删除</el-button>
+        </div>
+        <div class="selecteds">
+            <el-select v-model="params.paperType" popper-class="el-select" placeholder="试卷分类" v-on:change="change1">
+                <el-option v-for="(item,index) in options" :key="index" :label="item.label" :value="item.value"></el-option>
+            </el-select>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <el-select v-model="params.paperMode" popper-class="el-select" placeholder="组卷方式" v-on:change="change1">
+                <el-option v-for="(item,index) in options1" :key="index" :label="item.label" :value="item.value"></el-option>
+            </el-select>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <td></td>
+                    <td>试卷分类</td>
+                    <td>组卷方式</td>
+                    <td>试卷名称</td>
+                    <td>题目个数</td>
+                    <td>总分</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr v-for="(item,index) in tableData" :key="index">
+                    <td></td>
+                    <td>{{item.paperType==0?'问卷调查':item.paperType==1?'知识竞赛':item.paperType==2?'在线考试':''}}</td>
+                    <td>{{item.paperMode==0?'选题组卷':item.paperMode==1?'抽题组卷':''}}</td>
+                    <td>{{item.paperName}}</td>
+                    <td>{{item.paperNumber}}</td>
+                    <td>{{item.paperTotalScore}}</td>
+                    <td>{{item.paperCreaterName}}</td>
+                    <td>{{item.paperCreateTime}}</td>
+                    <td>{{item.paperStatus==0?'未使用':item.paperStatus==1?'已使用 ':item.paperStatus==2?'已删除':''}}</td>
+                    <td>操作操作操作操作操作操作操作操作</td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <pageVue></pageVue>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "TestPaperList",
+        data() {
+            return {
+                options: [{
+                    value: '9',
+                    label: '全部'
+                },{
+                    value: '0',
+                    label: '问卷调查'
+                }, {
+                    value: '1',
+                    label: '在线考试'
+                }, {
+                    value: '2',
+                    label: '知识竞赛'
+                }],
+                options1: [{
+                    value: '9',
+                    label: '全部'
+                },{
+                    value: '0',
+                    label: '选题组卷'
+                }, {
+                    value: '1',
+                    label: '抽题组卷'
+                }],
+                rows: 100,
+                perPage: 10,
+                currentPage: 1,
+                params:{
+                    paperType:9,
+                    paperMode:9,
+                    input:null,
+                    num:1,
+                    size:10
+                },
+                tableData: []
+            }
+        },
+        created(){
+            initData(this);
+        },
+        mounted() {
+
+        },
+        methods:{
+            change1:function () {
+                initData(this);
+            },
+            toAdd:function () {
+                this.$router.push("AddTestPaper");
+            }
+        }
+    }
+
+    function initData(_this) {
+        if (_this.params.paperType == 9 || _this.params.paperType == "9") {
+            _this.params.paperType=null;
+        }
+        if (_this.params.paperMode == 9 || _this.params.paperMode == "9") {
+            _this.params.paperMode=null;
+        }
+        _this.$axios({
+            url: '/biz/testPaperLib/selectDogCardHandleList',
+            method: 'get',
+            params: _this.params,
+            // isloading: true,
+        }).then((res) => {
+            if (res.code == 200) {
+                if (res.obj == null) {
+                    _this.tableData = []
+                    _this.totalPage = 0
+                } else {
+                    // res.data.data.lists.map(item => {
+                    //     item.isCheckd = false;//默认未选中
+                    // })
+                    _this.tableData = res.obj.list
+                    _this.totalPage = res.obj.total
+                }
+            }
+        }).catch((res) => {
+            console.log(res)
+        })
+    }
+</script>
+
+<style scoped>
+
+</style>

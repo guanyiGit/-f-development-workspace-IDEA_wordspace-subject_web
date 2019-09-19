@@ -1,0 +1,388 @@
+<template>
+    <!--设置分值页面-->
+    <div class="centoer">
+        <p class="title">试卷库<img src="../../../public/img/separator.png"/>新增</p>
+        <div class="btns">
+            <el-button type="primary" size="mini" v-on:click="bachSerScore">分值批量设置</el-button>
+            <el-button type="primary" size="mini" v-on:click="preStep">上一步</el-button>
+            <el-button type="primary" size="mini" v-on:click="complete">完成</el-button>
+        </div>
+        <div class="selecteds">
+            <!--<el-select v-model="params.paperType" popper-class="el-select" placeholder="试题分类" v-on:change="change">-->
+                <!--<el-option v-for="(item,index) in options" :key="index" :label="item.label" :value="item.value"></el-option>-->
+            <!--</el-select>-->
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <el-select v-model="params.difficulty" popper-class="el-select" placeholder="难度" v-on:change="change">
+                <el-option v-for="(item,index) in options1" :key="index" :label="item.label" :value="item.value"></el-option>
+            </el-select>
+            <span style="margin-left: 20px;">题目个数： </span>
+            <span style="color: red">{{parmQuestion.paperNumber}}个</span>
+            <span style="margin-left: 20px">计算总分： </span>
+            <span style="color: red">{{countScore}}分</span>
+            <span style="margin-left: 20px">试卷设置的总分：</span>
+            <span style="color: red">{{parmQuestion.paperTotalScore}}分</span>
+            <el-input class="saerch_input fr" placeholder="搜索试题内容" v-model.trim="params.input" @keyup.enter.native="searchHandle">
+                <i class="el-icon-search" slot="suffix" @click="searchHandle"> </i>
+            </el-input>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <td><el-checkbox v-model="quaxuan" size="100"></el-checkbox></td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>分值</td>
+                    <td>操作</td>
+                </tr>
+                <tr v-for="(item,index) in tableData" :key="index">
+                    <td><el-checkbox v-model="item.isCheckd" size="100"></el-checkbox></td>
+                    <td>{{item.subjectMode==0?'问卷调查':item.subjectMode==1?'在线考试':item.subjectMode==2?'知识竞赛':''}}</td>
+                    <td>{{item.subjectContent}}</td>
+                    <td>{{item.subjectDifficulty==0?'简单':item.subjectDifficulty==1?'一般':item.subjectDifficulty==2?'困难':''}}</td>
+                    <td>
+                        <input :id="index" class="el-input__inner" autocomplete="off" type="text" :value="item.score"  style="width: 80px;vertical-align:middle;" v-on:change="changeFen(item.subjectId,index)"/>
+                    </td>
+                    <td><a style="cursor:pointer;color: #319D8E" @click="deletee(item.subjectId)">删除</a></td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <pageVue :pageData="page" @chekdpageCallcak="changedPage"></pageVue>
+        </div>
+
+        <!--弹窗-->
+        <div class="T" id="bbb" style="display: none">
+            <div class="tan3 bgw rel" style="height: 350px">
+                <div class="h50 lh50 bgf1 fs16 cor0 pdl30 fb" style="background-color: #319D8E;color: #ffffff">分值设置</div>
+                <div style="margin-left: 15%;margin-top: 5%">
+                    <div>
+                        <span>已选题目个数：</span>
+                        <span id="tishu"></span>
+                        <span>个</span>
+                    </div>
+                    <div style="margin-top: 5%">
+                        <span>每题分值：</span>
+                        <input id="mtfz" type="text" style="width: 40px"/>
+                        <span>&nbsp;分</span>
+                        <p style="color: red;margin-top: 20px">注意：分值只能输入最多带1位小数的正实数！</p>
+                    </div>
+                </div>
+                <div class="t-c mgt100 mgb50">
+                    <a style="cursor:pointer;color: #ffffff" class="dinb w140 h40 lh40 t-c corw ras4 hov8 bort colorr" @click="tijiao">提交</a>
+                    <a style="cursor:pointer;background-color: #d3d3d3" class="dinb w140 h40 lh40 t-c cor01 bgf1 ras4 hov8 mgl5" @click="quxiao">取消</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import $ from 'jquery'
+    export default {
+        name: "SetUpScore",
+        data() {
+            return {
+                quaxuan:false,
+                parmQuestion:{
+                    paperId:null,//试卷表主键
+                    paperType:null,//试卷分类
+                    paperMode:0,//组卷方式
+                    paperName:null,//试卷名称
+                    paperNumber:null,//题目个数
+                    paperTotalScore:null,//题目总分
+                    paperStatus:null,//试卷状态
+                    paperCreater:null,//创建人主键
+                    paperCreateTime:null,//创建时间
+                    typeList:[],//存放不同类型的试题个数键值对
+                    difficultyList:[],//存放不同难度的试题个数键值对
+                    tSubjectRefPapers:[],//试卷试题关联表集合
+                    difficulty:null,//查询条件：试题难度
+                    type:null,//查询条件：试题类型
+                    num:1,//
+                    size:10,
+                    input:null,//查询条件
+                    judge:0//用来判断试修改还是新增 1是修改
+                },
+                countScore:0.0,//计算总分
+                fen:0.0,//单个的题目分数
+                options: [{
+                    value: 9,
+                    label: '全部'
+                },{
+                    value: 0,
+                    label: '问卷调查'
+                }, {
+                    value: 1,
+                    label: '在线考试'
+                }, {
+                    value: 2,
+                    label: '知识竞赛'
+                }],
+                options1: [{
+                    value: 9,
+                    label: '全部'
+                },{
+                    value: 0,
+                    label: '简单'
+                }, {
+                    value: 1,
+                    label: '一般'
+                },{
+                    value: 2,
+                    label: '困难'
+                }],
+                rows: 100,
+                perPage: 10,
+                currentPage: 1,
+                tableData: [],
+                totalPage:0,
+                params:{
+                    paperType:null,
+                    difficulty:null,
+                    input:null,
+                    num:1,
+                    size:10
+                },
+            }
+        },
+        created(){
+            this.parmQuestion=JSON.parse(sessionStorage.getItem("parmQuestion"));
+            var fe = parseInt(this.parmQuestion.paperTotalScore)/parseInt(this.parmQuestion.paperNumber);
+            fe = fe.toFixed(1);
+            this.fen=fe
+            for (var i=0;i<this.parmQuestion.tSubjectRefPapers.length;i++) {
+                this.parmQuestion.tSubjectRefPapers[i].score=this.fen;
+                this.countScore += parseFloat(this.fen);
+            }
+            this.countScore = this.countScore.toFixed(1)
+            initData(this);
+        },
+        watch:{
+            'quaxuan': function(newVal){
+                if (newVal==true) {
+                    for (var i=0;i<this.tableData.length;i++){
+                        this.tableData[i].isCheckd=true;
+                    }
+                }
+                if (newVal==false) {
+                    for (var j=0;j<this.tableData.length;j++){
+                        this.tableData[j].isCheckd=false;
+                    }
+                }
+            },
+        },
+        mounted() {
+        },
+        computed:{
+            page() {
+                return {
+                    curPage: this.params.num,//当前页吗
+                    totalCount: this.totalPage,//总条数
+                    pageSize: this.params.size,//页面大小
+                }
+            }
+        },
+        methods:{
+            searchHandle() {
+                this.params.num = 1;
+                initData(this);
+            },
+            changedPage(index) {
+                this.params.num = index;
+                initData(this);
+            },
+            deletee:function(subjectId){
+                this.$confirm("确定删除此题吗？").then(_=>{
+                    this.countScore=0;
+                    this.parmQuestion.paperNumber--;
+                    for (var i=0;i<this.parmQuestion.tSubjectRefPapers.length;i++) {
+                        if (this.parmQuestion.tSubjectRefPapers[i].subjectId==subjectId){
+                            this.parmQuestion.tSubjectRefPapers.splice(i,1)
+                        }
+                    }
+                    for (var a=0;a<this.parmQuestion.tSubjectRefPapers.length;a++){
+                        this.countScore += parseFloat(this.parmQuestion.tSubjectRefPapers[a].score);
+                    }
+                    sessionStorage.setItem("parmQuestion",JSON.stringify(this.parmQuestion));
+                    initData(this);
+                })
+            },
+            quxiao:function(){
+                $('.T').hide();
+            },
+            change:function () {
+                this.params.num=1
+                initData(this);
+            },
+            changeFen:function (subjectId,index) {
+                var fenfen=document.getElementById(index).value;
+                if(!(/^(0|[1-9][0-9]*)+(.[0-9]{1})?$/.test(fenfen))){
+                    this.$alert("分值只能输入最多带1位小数的正实数！")
+                    return
+                }
+                fenfen=parseFloat(fenfen);
+                this.countScore=0
+                fenfen = fenfen.toFixed(1)
+                for (var i=0;i<this.parmQuestion.tSubjectRefPapers.length;i++){
+                    if (this.parmQuestion.tSubjectRefPapers[i].subjectId==subjectId) {
+                        this.parmQuestion.tSubjectRefPapers[i].score=fenfen
+                    }
+                    this.countScore += parseFloat(this.parmQuestion.tSubjectRefPapers[i].score)
+                    this.tableData[index].score=fenfen
+                }
+            },
+            complete:function () {//完成
+                if (this.parmQuestion.judge==1 && this.parmQuestion.paperId!=null) {
+                    if (this.countScore != parseInt(this.parmQuestion.paperTotalScore)) {
+                        this.$alert("计算总分与设置的总分不相等，请调节试题分值！")
+                        return
+                    }
+                    this.$axios({
+                        url: '/biz/testPaperLib/updateTestPaper',
+                        method: 'post',
+                        headers:{
+                            'Content-Type': 'application/json;charset=UTF-8'
+                        },
+                        data: JSON.stringify(this.parmQuestion),
+                        // isloading: true,
+                    }).then((res) => {
+                        if (res.code == 200) {
+                            this.$alert("修改试卷成功！").then(_ => {
+                                this.$router.push("TestPaperList")
+                            }).catch(_ => {
+                            });
+                        }
+                    }).catch((res) => {
+                        console.log(res)
+                    })
+                }else {
+                    this.parmQuestion.paperCreater=getCookie("userId");
+                    if (this.countScore != parseInt(this.parmQuestion.paperTotalScore)) {
+                        this.$alert("计算总分与设置的总分不相等，请调节试题分值！")
+                        return
+                    }
+                    this.$axios({
+                        url: '/biz/testPaperLib/insertTestPaper',
+                        method: 'post',
+                        headers:{
+                            'Content-Type': 'application/json;charset=UTF-8'
+                        },
+                        data: JSON.stringify(this.parmQuestion),
+                        // isloading: true,
+                    }).then((res) => {
+                        if (res.code == 200) {
+                            this.$alert("创建试卷成功！").then(_ => {
+                                this.$router.push("TestPaperList")
+                            }).catch(_ => {
+                            });
+                        }
+                    }).catch((res) => {
+                        console.log(res)
+                    })
+                }
+            },
+            bachSerScore:function () {//批量设置
+                $("#mtfz").val("");
+                $(".T").show();
+                var numm=0;
+                for (var i=0;i<this.tableData.length;i++){
+                    if (this.tableData[i].isCheckd==true) {
+                        numm += 1;
+                    }
+                }
+                $("#tishu").text(numm);
+            },
+            tijiao:function(){
+                if(!(/^(0|[1-9][0-9]*)+(.[0-9]{1})?$/.test($("#mtfz").val().trim()))){
+                    $("#mtfz").val(0)
+                    // this.$alert("试题分数需填正整数数字！")
+                    return;
+                }
+                this.countScore=0;
+                for (var i=0;i<this.tableData.length;i++){
+                    if (this.tableData[i].isCheckd==true) {
+                        this.tableData[i].score=$("#mtfz").val().trim();
+                        for (var j=0;j<this.parmQuestion.tSubjectRefPapers.length;j++){
+                            if (this.parmQuestion.tSubjectRefPapers[j].subjectId==this.tableData[i].subjectId) {
+                                this.parmQuestion.tSubjectRefPapers[j].score=$("#mtfz").val();
+                            }
+                        }
+                    }
+                }
+                for (var a=0;a<this.parmQuestion.tSubjectRefPapers.length;a++){
+                    this.countScore += parseFloat(this.parmQuestion.tSubjectRefPapers[a].score);
+                }
+                sessionStorage.setItem("parmQuestion",JSON.stringify(this.parmQuestion));
+                $(".T").hide();
+            },
+            preStep:function () {//上一页
+                this.$router.go(-1);
+                // this.$router.push("TopicSelection");
+            },
+        }
+    }
+
+    function initData(_this) {
+        // _this.parmQuestion.type=_this.params.paperType
+        _this.parmQuestion.difficulty=_this.params.difficulty
+        _this.parmQuestion.num=_this.params.num
+        _this.parmQuestion.size=_this.params.size
+        _this.parmQuestion.input=_this.params.input
+        if (_this.parmQuestion.type == 9 || _this.parmQuestion.type == "9") {
+            _this.parmQuestion.type=null;
+        }
+        if (_this.parmQuestion.difficulty == 9 || _this.parmQuestion.difficulty == "9") {
+            _this.parmQuestion.difficulty=null;
+        }
+        _this.$axios({
+            url: '/biz/testPaperLib/creTePaSetScoreList',
+            method: 'post',
+            headers:{
+                'Content-Type': 'application/json;charset=UTF-8'
+            },
+            data: JSON.stringify(_this.parmQuestion),
+            // isloading: true,
+        }).then((res) => {
+            if (res.code == 200) {
+                if (res.obj == null) {
+                    _this.tableData = []
+                    _this.totalPage = 0
+                } else {
+                    res.obj.list.map(item => {
+                        item.isCheckd = false;//默认未选中
+                    })
+                    _this.tableData = res.obj.list
+                    _this.totalPage = res.obj.total
+                    for (var i=0;i<_this.tableData.length;i++) {
+                        for (var j=0;j<_this.parmQuestion.tSubjectRefPapers.length;j++){
+                            if (_this.tableData[i].subjectId==_this.parmQuestion.tSubjectRefPapers[j].subjectId){
+                                _this.tableData[i].score=_this.parmQuestion.tSubjectRefPapers[j].score
+                            }
+                        }
+                    }
+                }
+            }
+        }).catch((res) => {
+            console.log(res)
+        })
+    }
+
+    function getCookie(name){
+        //可以搜索RegExp和match进行学习
+        var arr,reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+        if (arr = document.cookie.match(reg)) {
+            return unescape(arr[2]);
+        } else {
+            return null;
+        }
+    }
+</script>
+
+<style scoped>
+    .T{position: fixed;width: 100%;height: 100%;left: 0;top: 0;z-index: 100000;background-color: rgba(0,0,0,.5);}
+    .tan3{width: 520px;height: 400px; position: absolute;left: 50%;top: 50%;margin: -200px 0 0 -260px;border-top: 2px solid #319D8E;}
+    .bort{border: none;}
+    .cor01{color: #010101}
+    .colorr{background-color: #319D8E}
+</style>

@@ -1,0 +1,182 @@
+<template>
+    <!--新增试卷的第一个页面-->
+    <div class="centoer">
+        <p class="title">试卷库<img src="../../../public/img/separator.png"/>新增</p>
+        <div class="btns">
+            <el-button type="primary" size="mini" v-on:click="toTopc">下一步</el-button>
+            <el-button type="warning" size="mini" v-on:click="cancell">取消</el-button>
+        </div>
+        <div class="tablPerp">
+            <div class="wai">
+                <div class="nei">
+                    <div class="ovh">
+                        <div class="mgt10 ww60">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">试卷名称:</span>
+                            <div class="mgl115">
+                                <input type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" v-model.trim="parmQuestion.paperName">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ovh">
+                        <div class="mgt10 ww70">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30" >试卷分类:</span>
+                            <div class="mgl115">
+                                <select id="color" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 380px" v-model="parmQuestion.paperType">
+                                    <option value="9">请选择</option>
+                                    <option value="0">问卷调查</option>
+                                    <option value="1">在线考试</option>
+                                    <option value="2">知识竞赛</option>
+                                    <!--<option v-for="item in colorList" v-bind:value="item.dictionaryValue">{{item.dictionaryDescribe}}</option>-->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ovh">
+                        <div class="mgt10 ww50">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">组卷方式:</span>
+                            <div class="mgl115">
+                                <select id="color" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 380px" v-model="parmQuestion.paperMode">
+                                    <option value="9">请选择</option>
+                                    <option value="0">选题组卷</option>
+                                    <option value="1">自动组卷</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ovh">
+                        <div class="mgt10 ww50">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">试题个数:</span>
+                            <div class="mgl115">
+                                <input type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" v-model.trim="parmQuestion.paperNumber">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ovh">
+                        <div class="mgt10 ww50">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">试卷总分:</span>
+                            <div class="mgl115">
+                                <input type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" v-model.trim="parmQuestion.paperTotalScore" :disabled=display>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "AddTestPaper",
+        data() {
+            return {
+                display:false,
+                parmQuestion:{
+                    paperId:null,//试卷表主键
+                    paperType:9,//试卷分类
+                    paperMode:9,//组卷方式
+                    paperName:null,//试卷名称
+                    paperNumber:null,//题目个数
+                    paperTotalScore:null,//题目总分
+                    paperStatus:null,//试卷状态
+                    paperCreater:null,//创建人主键
+                    paperCreateTime:null,//创建时间
+                    typeList:[],//存放不同类型的试题个数键值对
+                    difficultyList:[],//存放不同难度的试题个数键值对
+                    tSubjectRefPapers:[],//试卷试题关联表集合
+                    difficulty:null,//查询条件：试题难度
+                    type:null,//查询条件：试题类型
+                    num:1,//
+                    size:10,
+                    input:null//查询条件
+                },
+            }
+        },
+        created() {
+            var parmQ=sessionStorage.getItem("parmQuestion");
+            if (parmQ != null && parmQ != "") {
+                this.parmQuestion=JSON.parse(parmQ);
+            }
+        },
+        watch:{
+            'parmQuestion.paperType': function(newVal){
+                console.log(newVal)
+                if (newVal==0) {
+                    this.display=true
+                }else {
+                    this.display=false
+                }
+            },
+        },
+        methods:{
+            toTopc:function () {
+                if (this.parmQuestion.paperName==null || this.parmQuestion.paperName=='') {
+                    this.$alert("请填写试卷名称！")
+                    return
+                }
+                if (this.parmQuestion.paperType==9 || this.parmQuestion.paperType=='9') {
+                    this.$alert("请选择试卷分类！")
+                    return
+                }
+                if (this.parmQuestion.paperMode==9 || this.parmQuestion.paperMode=='9') {
+                    this.$alert("请选择组卷方式！")
+                    return
+                }
+                if (this.parmQuestion.paperNumber==null || this.parmQuestion.paperNumber=='') {
+                    this.$alert("请填写试题个数！")
+                    return
+                }
+                if (this.parmQuestion.paperType!=0) {
+                    if (this.parmQuestion.paperTotalScore==null || this.parmQuestion.paperTotalScore=='') {
+                        this.$alert("请填写试卷总分！")
+                        return
+                    }
+                }
+                if(!(/^[0-9]*[1-9][0-9]*$/.test(this.parmQuestion.paperNumber))){
+                    this.$alert("试题个数需填正整数数字！")
+                    return;
+                }
+                if (this.parmQuestion.paperType!=0) {
+                    if(!(/^[0-9]*[1-9][0-9]*$/.test(this.parmQuestion.paperTotalScore))){
+                        this.$alert("试卷总分需填正整数数字！")
+                        return;
+                    }
+                }
+                if (this.parmQuestion.paperType==0) {
+                    this.parmQuestion.paperTotalScore=null;
+                }
+                // this.$router.push({name:"TopicSelection",params:{'parmQuestion':JSON.stringify(this.parmQuestion)}});
+                this.parmQuestion.type=this.parmQuestion.paperType
+                sessionStorage.setItem("parmQuestion",JSON.stringify(this.parmQuestion))
+                if (this.parmQuestion.paperMode==0 || this.parmQuestion.paperMode=='0') {
+                    this.$router.push({name:"TopicSelection"});
+                }else if (this.parmQuestion.paperMode==1 || this.parmQuestion.paperMode=='1') {
+                    this.$router.push({name:"QuestionAdd"});
+                }
+            },
+            cancell:function () {
+                // this.$router.push("TestPaperList");
+                this.$router.go(-1);
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .wai{
+        border-top: solid 1px #ddd
+    }
+    .nei{
+        margin:auto;
+        margin-top: 100px;
+        width:500px;
+        height:150px;
+    }
+    span{
+        font-size: 16px;
+    }
+    input{
+        margin-left: 0px;
+        width: 380px;
+    }
+</style>

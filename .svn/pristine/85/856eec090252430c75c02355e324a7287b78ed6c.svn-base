@@ -1,0 +1,387 @@
+<template>
+    <div class="centoer">
+        <p class="title">活动管理>新增</p>
+       <div class="btns">
+               <el-button type="primary" size="mini" @click="save">保存</el-button>
+                <el-button  type="primary" size="mini" @click="release">发布</el-button>
+
+            <el-button type="warning" size="mini" @click="cancel">取消</el-button>
+        </div>
+       <div class="tablPerp">
+             <div class="wai">
+                 <div class="nei">
+                     <div class="ovh">
+                         <div class="mgt10 ww60">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">活动名称:</span>
+                             <div class="mgl100">
+                                 <input v-model="insertExam.examName" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww60">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">活动分类:</span>
+                             <div class="mgl100">
+                                 <select v-model="insertExam.examType" id="color" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                                     <option value="0">问卷调查</option>
+                                     <option value="1">在线考试</option>
+                                     <option value="2">知识竞赛</option>
+                                 </select>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">活动试卷:</span>
+                             <div class="mgl100">
+                                 <input v-model="paperName" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                                 <img @click.prevent="check" src="./search30.png" style="z-index: 999;margin-top: 4px;margin-left: -40px">
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">答题次数:</span>
+                             <div class="mgl100">
+                                     <el-radio v-model="radio" :label=0>无限次</el-radio>
+                                     <el-radio v-model="radio" :label=1>有限次</el-radio>
+
+                                 <input  v-if="radio==1" v-model="insertExam.answersNumber" type="text" class="ww10 h40 lh40 pdl20 borf1 ras4" placeholder="次">
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">活动时长:</span>
+                             <div class="mgl100">
+                                 <el-radio v-model="radio2" :label=0>不限时长</el-radio>
+                                 <el-radio v-model="radio2" :label=1>限制时长</el-radio>
+                                 <input  v-if="radio2==1" v-model="insertExam.examTime" type="text" class="ww10 h40 lh40 pdl20 borf1 ras4" placeholder="分钟">
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">及格分数:</span>
+                             <div class="mgl100">
+                                 <input type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">回看设置:</span>
+                             <div class="mgl100">
+                                 <el-radio v-model="insertExam.echoSetting" :label=0>显示正确答案</el-radio>
+                                 <el-radio v-model="insertExam.echoSetting" :label=1>不显示正确答案</el-radio>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">活动生效时间:</span>
+                             <div class="mgl100">
+                                 <el-date-picker  v-model="insertExam.effectDate"  name="startTime" type="datetime" placeholder="选择日期"
+                                                  format="yyyy-MM-dd HH:mm:ss">
+                                 </el-date-picker>
+                                 <!--<el-checkbox v-model="checked">发布即生效</el-checkbox>-->
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">活动失效时间:</span>
+                             <div class="mgl100">
+                                 <el-date-picker  v-model="insertExam.failureDate"  name="startTime" type="datetime" placeholder="选择日期"
+                                                  format="yyyy-MM-dd HH:mm:ss">
+                                 </el-date-picker>
+                                 <!--<el-checkbox v-model="checked2">手动关闭</el-checkbox>-->
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">活动说明:</span>
+                             <div class="mgl100">
+                                 <input type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+        <!--弹窗start   说明。-->
+       <div v-show="frameShow" class="point frameSize" style="display: none;z-index: 100">
+            <div class="tan6 abs bgw k3 db ww100" style="height: 340px">
+                <p class="ww100 h30" style="background-color: #319D8E"><span style="color:white;margin-left: 10px;font-size: 16px">查找试卷</span></p>
+                <el-input class="saerch_input fr" placeholder="试卷名称" v-model.trim="params.input">
+                    <i class="el-icon-search" slot="suffix" @click="searchHandle" > </i>
+                </el-input>
+                <div class="mgt50 k3">
+                    <table class="table5 t-c">
+                        <thead>
+                        <tr>
+                            <td class="cor0 h60 bgf1 ww5"></td>
+                            <td class="cor0 h60 bgf1">试卷名称</td>
+                            <td class="cor0 h60 bgf1">题目个数</td>
+                            <td class="cor0 h60 bgf1">总分</td>
+                            <td class="cor0 h60 bgf1">创建人</td>
+                            <td class="cor0 h60 bgf1">创建时间</td>
+                        </tr>
+                        </thead>
+                        <tbody id="tbod">
+                        <tr v-for="(item,index) in paperList" :key="index">
+                            <td class="ww5">
+                                <label class="lab3 mgr40">
+                                <el-radio v-model="insertExam.paperId" :label=item.paperId @change="(value)=>changeHandler(value, item.paperName)">&nbsp;</el-radio>
+                                </label>
+                            </td>
+                            <td>{{item.paperName}}</td>
+                            <td>{{item.paperNumber}}</td>
+                            <td>{{item.paperTotalScore}}</td>
+                            <td>{{item.paperCreaterName}}</td>
+                            <td>{{item.paperCreateTime | formatDate()}}</td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--分页-->
+                <pageVue :pageData="pageData"  @chekdpageCallcak="changedPage"></pageVue>
+                <!--分页&ndash;&gt;-->
+                <div class="t-c mgt40 mgb50">
+                    <a style="cursor:pointer;background-color: #319D8E" class="dinb w140 h40 lh40 t-c corw  ras4 hov8 bort" @click="selectPaper"><span style="color: white">确定</span></a>
+                    <a style="cursor:pointer;" class="dinb w140 h40 lh40 t-c cor01 bgf1 ras4 hov8" @click="tableCancel">取消</a>
+                </div>
+            </div>
+        </div>
+        <!--弹窗END-->
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "addActiviti",
+        data() {
+            return {
+                paperName:this.$route.params.paperName,
+                radio:0,
+                radio2:0,
+                insertExam:{//请求参数
+
+             examType:0,
+
+            examName:null,
+
+            paperId:this.$route.params.paperId,
+
+             answersNumber:0,//不限次数
+
+             examTime:0,//不限时长
+
+             passScore:null,
+
+            echoSetting:0,//显示正确答案
+
+            effectDate:new Date(),
+
+            failureDate:new Date(new Date().getTime() + 365*24*60*60*1000),
+
+            examExplain:null,
+
+            examStatus:0,
+
+            examCreater:0
+        },
+                frameShow:false,
+                paperList:[],
+                count:0,
+                params:{
+                    paperType:0,
+                    paperMode:0,
+                    input:null,
+                    num:1,
+                    size:10
+                }
+
+            }
+        },
+        created() {
+            //initData(this)
+        },
+        mounted() {
+
+        },
+        computed: {
+            pageData() {
+                return {
+                    curPage: this.params.num,//当前页吗
+                    totalCount: this.count,//总条数
+                    pageSize: this.params.size,//页面大小}
+
+                }
+            },
+        },
+        methods:{
+
+            save: function(){//保存功能
+                // //选中了发布即生效
+                // if(this.checked==true){
+                //     //生效时间为空
+                //     this.insertExam.effectDate= null;
+                // }
+                add(this)
+            },
+            release:function () {//发布功能
+                // //选中了发布即生效
+                // if(this.checked==true){
+                //     //生效时间为当前时间
+                //     this.insertExam.effectDate= new Date();
+                // }
+                this.insertExam.examStatus= 1;
+              add(this)
+            },
+            check:function(){
+                this.frameShow=true;
+                initPaperList(this);
+            },
+            selectPaper:function () {
+                this.frameShow=false;
+            },
+            tableCancel:function () {
+                this.frameShow=false;
+                this.insertExam.paperId=null;
+                this.paperName=null;
+            },
+            changedPage:function (num) {
+                this.params.num = num;
+                initPaperList(this);
+
+            },
+            changeHandler(val,paperName) {
+                this.paperName=paperName;
+            },
+            cancel:function () {
+                this.$router.go(-1);
+            },
+            searchHandle:function () {
+                initPaperList(this);
+            }
+        },
+        watch:{
+            "radio":function () {
+                if(this.radio==0){
+                    this.insertExam.answersNumber=0;
+                }
+            },
+            "radio2":function () {
+                if(this.radio2==0){
+                    this.insertExam.examTime=0;
+                }
+            }
+        }
+    }
+
+
+
+    function initPaperList(_this){
+        _this.$axios({
+            method: 'post',
+            url: '/biz/testPaperLib/selectDogCardHandleList',
+            params: _this.params
+        }).then((res) => {
+            debugger
+            if (res.code==200 && res.obj !=null) {
+                _this.paperList=res.obj.list;
+                _this.count=res.obj.total;
+            }else {
+                _this.$alert('操作失败!')
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
+
+
+
+
+    //新增考试
+    function add(_this) {
+        if(_this.insertExam.examName==null){
+            _this.$alert('请输入活动名称!')
+            return
+        }
+
+        if(_this.insertExam.paperId==null){
+            _this.$alert('请选择活动试卷!')
+            return
+        }
+        var re = /^[0-9]+$/ ;
+
+        if(_this.radio==1){
+            if(_this.insertExam.answersNumber==null){
+                _this.$alert('请输入答题次数!')
+                return
+            }
+            if(!re.test(_this.insertExam.answersNumber)){
+                _this.$alert('答题次数必须为大于0的整数!')
+                return
+            }
+        }
+        if(_this.radio2==1){
+            if(_this.insertExam.examTime==null){
+                _this.$alert('请输入活动时长!')
+                return
+            }
+            if(!re.test(_this.insertExam.examTime)){
+                _this.$alert('活动时长必须为大于0的整数!')
+                return
+            }
+        }
+
+        if(_this.insertExam.passScore!=null){
+            if(!re.test(_this.insertExam.passScore)){
+                _this.$alert('及格分数必须为大于0的整数!')
+                return
+            }
+        }
+
+            if(_this.insertExam.effectDate==null){
+                _this.$alert('请选择生效效时间!')
+                return
+            }
+        if(_this.insertExam.failureDate !=null){
+            if(_this.insertExam.effectDate.getTime()>=_this.insertExam.failureDate.getTime()){
+                _this.$alert('失效时间不能小于等于生效时间!')
+                return
+            }
+            if(_this.insertExam.failureDate.getTime()<=new Date().getTime()){
+                _this.$alert('失效时间不能小于等于当前时间!')
+                return
+            }
+
+        }
+        _this.$axios({
+            method: 'post',
+            url: '/biz/activity/insertExam',
+            params: _this.insertExam
+        }).then((res) => {
+            if (res.code==200 && res.obj !=0) {
+                _this.$alert('操作成功!').then(_ => {
+                    _this.$router.push("Exam");
+                }).catch(_ => {
+                });
+            }else {
+                _this.$alert('操作失败!')
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+</script>
+
+<style scoped>
+    .point{position:absolute;left:27%; top:20%;}
+    .frameSize{height:50%;width:50%}
+</style>

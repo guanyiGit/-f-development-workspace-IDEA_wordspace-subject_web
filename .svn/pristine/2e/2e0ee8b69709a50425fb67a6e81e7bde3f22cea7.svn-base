@@ -1,0 +1,116 @@
+<template>
+    <div class="app">
+        <router-view/>
+    </div>
+</template>
+
+<script>
+    import '../public/css/common.css'
+
+    export default {
+        name: "app"
+    }
+</script>
+
+<style>
+    .cp {
+        cursor: pointer;
+    }
+    .df{
+        display: flex;
+    }
+    .dtc{
+        display: table-cell;
+    }
+    .vam{
+        vertical-align: middle;
+    }
+    .app .el-main{
+        padding-left: 0;
+        font-size: 14px;
+    }
+    .app .el-select {
+        width: 180px;
+    }
+    .app .saerch_input{
+        width: 200px;
+    }
+    /*.app .el-select .el-input__inner:focus{*/
+        /*border-color: #379D8E;*/
+    /*}*/
+    /*.app .el-select-dropdown__list>.el-select-dropdown__item.selected{*/
+        /*color: #379D8E;*/
+    /*}*/
+    /*.app .saerch_input .el-input__inner{*/
+        /*border-radius:20px;*/
+    /*}*/
+    /*.app .el-input__inner:focus{*/
+        /*border-color: #379D8E;*/
+    /*}*/
+
+    /*.el-input--suffix .el-input__inner, .app .el-input__icon {*/
+        /*height: 35px;*/
+        /*line-height: 35px;*/
+    /*}*/
+    /*.navclas{*/
+        /*background-color: #319D8E;*/
+    /*}*/
+    /*.app .el-button--primary{*/
+        /*background-color: #319D8E;*/
+    /*}*/
+    /*.app .el-header{*/
+        /*padding: 0 10px;*/
+    /*}*/
+    .tablPerp{
+        min-height: 500px;
+        box-shadow: 2px 2px 8px #ddd;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+    .mtable td{
+        border: solid 1px #ddd;
+        min-width: 20px;
+        max-width: 150px;
+    }
+  
+    .mtable tr{
+        height: 40px;
+        line-height: 40px;
+    }
+    .mtable tr:first-child~tr:nth-child(even){
+        background-color:#EEEEEE ;
+    }
+    .title{
+        border-bottom: solid 1px #ddd;
+        padding-bottom: 10px;
+    }
+    .btns,.selecteds{
+        height: 50px;
+        min-width: 850px;
+    }
+    .app .el-icon-search{
+        font-size: 24px;
+        cursor: pointer;
+        height: 35px;
+        line-height: 35px;
+    }
+    .el-icon-search:hover{
+        color:#F18D80 ;
+        font-size: 28px;
+    }
+
+
+    /*.app .el-button--primary:focus, .app .el-button--primary:hover{*/
+        /*background-color: #318D4E;*/
+    /*}*/
+    /*.app .el-checkbox__input.is-checked .el-checkbox__inner{*/
+        /*background-color: #379D8E;*/
+        /*border-color: #318D4E;*/
+    /*}*/
+    /*.app .el-checkbox__input.is-focus .el-checkbox__inner{*/
+        /*border-color: #318D4E;*/
+    /*}*/
+    /*.app .el-select .el-input.is-focus .el-input__inner{*/
+        /*border-color:#318D4E;*/
+    /*}*/
+</style>

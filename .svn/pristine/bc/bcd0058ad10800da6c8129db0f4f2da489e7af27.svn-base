@@ -1,0 +1,32 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import Containner from '@/components/Containner'
+import Home from '@/views/index/Home'
+import Wor from '@/views/wor/Wor'
+import Exam from '@/views/exam/Exam'
+import Score from '@/views/score/Score'
+import Permission from '@/views/permission/Permission'
+import TestPaperList from '@/views/testPaperLib/TestPaperList'
+import AddTestPaper from '@/views/testPaperLib/AddTestPaper'
+import TopicSelection from '@/views/testPaperLib/TopicSelection'
+
+Vue.use(Router)
+
+export default new Router({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes: [
+    { path: '/', name: 'containner', component: Containner,
+      children:[
+          {path: 'home', name: 'home', component: Home},
+          {path: 'wor', name: 'wor', component: Wor},
+          {path: 'exam', name: 'exam', component: Exam},
+          {path: 'score', name: 'score', component: Score},
+          {path: 'permission', name: 'permission', component: Permission},
+          {path: 'TestPaperList', name: 'TestPaperList', component: TestPaperList},//试卷库列表
+          {path: 'AddTestPaper', name: 'AddTestPaper', component: AddTestPaper},//新增试卷第一个页面
+          {path: 'TopicSelection', name: 'TopicSelection', component: TopicSelection},//选题页面
+      ]
+    },
+  ]
+})

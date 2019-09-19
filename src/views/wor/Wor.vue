@@ -1,0 +1,288 @@
+<template>
+    <div class="centoer">
+        <p class="title">
+            <font class="primary" style="color:#000000">试题库</font>
+        </p>
+        <div class="btns">
+            <input type="file" class="uploadfile" accep="xls" @change="fileUpload" name="file" style="display: none;">
+            <el-button type="primary" size="mini" @click="$router.push({name:'wor_add'})">新增</el-button>
+            <el-button type="primary" size="mini" @click="importEvent">导入</el-button>
+<!--            <el-button type="primary" size="mini" @click="$message.warning('功能未开通')">模板下载</el-button>-->
+            <el-button type="warning" size="mini" @click="removeHandle('')">删除</el-button>
+        </div>
+        <div class="selecteds">
+            <el-select @change="searchHandle" class="mgr20" popper-class="el-select" clearable v-model="params.subjectMode" placeholder="试题分类">
+                <el-option v-for="item in subjectModeList" :key="item.seq" :label="item.desc"
+                           :value="item.seq"></el-option>
+            </el-select>
+            <el-select @change="searchHandle" class="mgr20" popper-class="el-select" clearable v-model="params.subjectDifficulty"
+                       placeholder="难度级别">
+                <el-option v-for="item in subjectDifficultyList" :key="item.seq" :label="item.desc"
+                           :value="item.seq"></el-option>
+            </el-select>
+            <el-input class="saerch_input fr" placeholder="搜索试题内容" v-model.trim="params.keyWord">
+                <i class="el-icon-search" slot="suffix" @click="searchHandle"> </i>
+            </el-input>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <td class="dtc">
+                        <el-checkbox :value="list.every(x=>x.checked)" @change="selectAllHandle"></el-checkbox>
+                    </td>
+                    <td>题型</td>
+                    <td>试题分类</td>
+                    <td>题目内容</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr v-for="(item) in list" :key="item.subjectId">
+                    <td class="dtc">
+                        <el-checkbox :disabled="item.subjectStatus == 2" v-model="item.checked"></el-checkbox>
+                    </td>
+                    <td>{{ item.sunjectTypeNmae }}</td>
+                    <td>
+                        {{
+                            // item.subjectMode ==1?'民法知识' :
+                            // item.subjectMode ==2?'刑法知识' :
+                            // item.subjectMode ==3?'趣味知识' :
+                            // item.subjectMode ==4?'其他知识' :'交通法规'
+                           questionTypes(item.subjectMode)
+
+                        }}
+                    </td>
+                    <td class="lh25 pdl10 pdr10 t-l">
+                        <span v-if="!item.subjectContent && item.subjectUrl">
+                            <div v-viewer="{movable: false}">
+                                <img class="h80 cp" :src="item.subjectUrl" @click="$event.target.parentNode.$viewer.show()" :alt="item.uname+'创建的试卷'">
+                            </div>
+                        </span>
+                        <span v-else>{{ item.subjectContent.length > 120?(item.subjectContent.substring(0,120)+'...'):item.subjectContent }}</span>
+                    </td>
+                    <td>{{
+                            item.subjectDifficulty==0?'简单':
+                            item.subjectDifficulty==1?'一般':'困难'
+                        }}
+                    </td>
+                    <td>{{ item.uname }}</td>
+                    <td>{{ $moment(item.subjectCreatetime).format('YYYY-MM-DD') }}</td>
+                    <td>
+                        <font v-if="item.subjectStatus == 0" color="#FD631F"> 未使用 </font>
+                        <font v-else-if="item.subjectStatus == 1" style="color: rgb(56, 198, 182)"> 已使用 </font>
+                        <font v-else-if="item.subjectStatus == 2" color="#389919"> 已删除 </font>
+                        <font v-else color="#aaaaaa"> 未知 </font>
+                    </td>
+                    <td style="color: #38C6B6">
+                        <span class="cp" @click="$router.push({name:'wor_view',params:{id:item.subjectId}})">查看</span>
+                        <span v-if="item.subjectStatus == 0">
+                            <span class="mgl5 cp" @click="$message.warning('功能未开通')">修改</span>
+                            <span class="cp mgl5" @click="removeHandle(item.subjectId)">删除</span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <pageVue :pageData="page" @chekdpageCallcak="changedPage"></pageVue>
+        </div>
+    </div>
+</template>
+
+<script>
+    import {subjectModeList,subjectDifficultyList} from '@/utils/dict'
+    import LargeImg from '@/components/LargeImg'
+    import $ from 'jquery';
+
+
+    export default {
+        name: "Wor",
+        components:{ LargeImg },
+        data() {
+            return {
+                value: '',
+                params: {
+                    pageNum: 1,
+                    limit: 10,
+                    keyWord: '',
+                    totalCount: 1,
+                    subjectMode: '',
+                    subjectDifficulty: ''
+                },
+                list: [],
+                subjectModeList,
+                subjectDifficultyList,
+
+                showImg:false,
+                imgSrc: ''
+            }
+        },
+        computed: {
+            page() {
+                return {
+                    curPage: this.params.pageNum,//当前页吗
+                    totalCount: this.params.totalCount,//总条数
+                    pageSize: this.params.limit,//页面大小
+                }
+            },
+            questionTypes(){
+                return (subjectMode)=>{
+                    try{ 
+                        return this.subjectModeList.filter(x=>x.seq === subjectMode)[0].desc
+                    }catch(err){}
+                    return '其他'
+                }
+            }
+
+        },
+        methods: {
+            importEvent() {
+                $('.uploadfile').trigger('click')
+            },
+
+            //excel上传
+            fileUpload(e) {
+                let files = e.currentTarget.files
+                if (files && files.length == 1) {
+                    if (/.xls/i.test(files[0].name)) {
+                        let formdata = new FormData();
+                        formdata.append('file', files[0]);
+                        this.$axios({
+                            url: '/biz/excel/importSubject',
+                            method: 'post',
+                            headers: {'Content-Type': 'multipart/form-data'},
+                            params: {"userId": getCookie("userId")},
+                            data: formdata
+                        }).then(res => {
+                            console.log(res);
+                            if (res.code == 200){
+                                this.$alert("导入成功！");
+                                list.apply(this);
+                            } else {
+                                this.$alert(res.data.meta.message);
+                            }
+                        })
+                    } else {
+                        this.$message("请填写“device.xls”模板后上传！");
+                    }
+                } else {
+                    this.$message("一次只能上传一个文件！")
+                }
+                //清空输入框
+                e.currentTarget.value = '';
+            },
+
+            changedPage(index) {
+                this.params.pageNum = index;
+                list.apply(this);
+            },
+            selectAllHandle() {
+                const checkStat = !this.list.every(x=>x.checked)
+                this.list.forEach(x => x.checked = checkStat)
+            },
+            searchHandle() {
+                this.pageNum = 1;
+                list.apply(this);
+            },
+            removeHandle(subjectId){
+                remove.apply(this,[subjectId]);
+            },
+        },
+        created() {
+            list.apply(this);
+        }
+    }
+
+    async function remove(subjectId){
+        let subjectIds = [];
+        let item = {};
+        if(subjectId){
+            subjectIds = [subjectId]
+            item = this.list.find(x=>x.subjectId == subjectIds);
+            item.msg = item.subjectContent;
+        }else{
+            if(this.list.every(x=>!x.checked)){
+                this.$alert("您还没有选择要删除的项！");
+                return;
+            }
+            subjectIds = [...this.list].filter(x=>x.checked).map(x=>x.subjectId)
+            if(subjectIds.length == 1){
+                item.msg = this.list.find(x=>x.subjectId == subjectIds[0]).subjectContent;
+            }
+        }
+
+        item.msg = item.msg && item.msg.length > 10 ? item.msg.substring(1,10)+'...':item.msg;
+
+        const msg = subjectIds.length ==1 ? "将删除名称为“"+item.msg +"”的选项，是否继续？" : "将删除 "+(subjectIds.length)+" 项,是否继续？";
+        let result = await this.$confirm(msg, "删除提示", {
+                showCancelButton: true,
+                cancelButtonText: '取消',
+        }).then(Promise.resolve('confirm')).catch(res=>Promise.resolve('err'));
+        if ('confirm' != result) {
+            this.$message("已取消")
+            return;
+        }
+
+        this.$axios.delete("/biz/wor/batch",{
+            params:{
+                'subjectIds':subjectIds.join()
+            },
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            isloading:true
+        }).then(res=>{
+            if(res.success){
+                this.$alert("删除成功");
+                list.apply(this);
+            }else{
+                this.$alert("删除失败")
+            }
+        })
+    }
+
+    function list() {
+        let params = {...this.params};
+        delete  params.totalCount;
+        if (!params.keyWord) {
+            delete  params.keyWord;
+        }
+        if (params.subjectMode < 0) {
+            delete  params.subjectMode;
+        }
+        if (!params.subjectDifficulty < 0) {
+            delete  params.subjectDifficulty;
+        }
+        this.$axios.get("/biz/wor/list", {params}).then(res => {
+            if (res.success) {
+                res.obj.list.forEach(x => {
+                    x.checked = false;
+                    if (x.sunjectType  == 0){
+                        x.sunjectTypeNmae = "单选"
+                    }else if (x.sunjectType  ==1) {
+                        x.sunjectTypeNmae = "多选"
+                    }else{
+                        x.sunjectTypeNmae = "简答"
+                    }
+                });
+                this.list = res.obj.list;
+                this.params.totalCount = res.obj.total;
+            }
+        })
+    }
+
+    function getCookie(name)
+    {
+        var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+        if(arr=document.cookie.match(reg))
+            return unescape(arr[2]);
+        else
+            return null;
+    }
+</script>
+
+<style scoped>
+ 
+</style>

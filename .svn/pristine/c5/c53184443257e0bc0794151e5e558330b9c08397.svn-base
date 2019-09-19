@@ -1,0 +1,139 @@
+<template>
+    <div class="centoer">
+        <p class="title">用户权限>新增</p>
+       <div class="btns">
+               <el-button type="primary" size="mini" @click="save">保存</el-button>
+
+            <el-button type="warning" size="mini">取消</el-button>
+        </div>
+       <div class="tablPerp">
+             <div class="wai">
+                 <div class="nei">
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">姓名:</span>
+                             <div class="mgl100">
+                                 <input v-model="insertUser.name" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">联系方式:</span>
+                             <div class="mgl100">
+                                 <input v-model="insertUser.phone" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="ovh">
+                         <div class="mgt10 ww60">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">所属角色:</span>
+                             <div class="mgl100">
+                                 <select v-model="insertUser.roleId" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                                     <option :value="role.roleId" v-for="(role,index) in roleList" :key="index">{{role.roleName}}</option>
+                                 </select>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">登录名:</span>
+                             <div class="mgl100">
+                                 <input   v-model="insertUser.username" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                             </div>
+                         </div>
+                     </div>
+                     <div class="ovh">
+                         <div class="mgt10 ww50">
+                             <span class="db w100 fl h40 lh40 cor0 pdl30">密码:</span>
+                             <div class="mgl100">
+                                 <input  v-model="insertUser.password" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "addUser",
+        data() {
+            return {
+                insertUser: {//请求参数
+                 name:null,
+                username:null,
+                phone:null,
+                    password:null,//不限次数
+                roleId:1
+                 },
+                roleList:[]
+
+
+            }
+        },
+        created() {
+            initRoleList(this)
+        },
+        mounted() {
+
+        },
+        computed: {
+
+        },
+        methods:{
+
+            save: function(){
+                add(this)
+            },
+            release:function () {
+              add(this)
+            }
+        },
+        watch:{
+        }
+    }
+    function initRoleList(_this) {
+        _this.$axios({
+            url: '/biz/user/findRoleList',
+        }).then((res) => {
+            if (res.code==200) {
+                _this.roleList=res.obj;
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+    function add(_this) {
+        _this.$axios({
+            method: 'post',
+            url: '/biz/user/insert',
+            params: _this.insertUser
+        }).then((res) => {
+            debugger
+            if (res.code==200 && res.obj !=0) {
+                if(res.obj==-1){
+                    _this.$alert('该电话号码已经存在!')
+                }else{
+                    _this.$alert('操作成功!').then(_ => {
+                        _this.$router.push("permission");
+                    }).catch(_ => {
+                    });
+                }
+
+            }else {
+                _this.$alert('操作失败!')
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+</script>
+
+<style scoped>
+
+</style>

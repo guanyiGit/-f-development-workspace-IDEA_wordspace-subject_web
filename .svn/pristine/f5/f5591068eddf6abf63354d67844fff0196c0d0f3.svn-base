@@ -1,0 +1,248 @@
+<template>
+    <div class="max">
+        <div class="content">
+            <div class="title1">快捷方式</div>
+            <div class="content1">
+                <div class="content1_div" @click="wor_add">
+                    <div class="content1_img">
+                        <img src="../../assets/t003.png" width="60px;"/>
+                    </div>
+                    <div>
+                        <p style="color: #33ccff;font-size: 18px;">新增试题</p>
+                        <p>试题名称支持文字和图片，选项支持文字，新增的试题将加入试题库中，供组卷时选择</p>
+                    </div>
+                </div>
+                <div class="content1_div" style="border:1px solid #fbad82" @click="AddTestPaper">
+                    <div class="content1_img">
+                        <img src="../../assets/t002.png" width="60px;"/>
+                    </div>
+                    <div>
+                        <p style="color: #33ccff;font-size: 18px;">新增试卷</p>
+                        <p>组卷有两种方式：选题组卷与抽题组卷，选题组卷人工选择试题，抽题组卷由系统自动抽取</p>
+                    </div>
+                </div>
+                <div class="content1_div"  style="border:1px solid red" @click="addActiviti">
+                    <div class="content1_img">
+                        <img src="../../assets/t001.png" width="45px;"/>
+                    </div>
+                    <div>
+                        <p style="color: #33ccff;font-size: 18px;">创建考试</p>
+                        <p>创建一场考试并从试卷库中选择一张试卷,发布考试后考生可开始考试</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content001">
+            <div class="title1">正在进行的考试</div>
+            <div class="content001_max">
+                <div class="content001_div" v-for="(item,index) in list1" :key="index">
+                    <div class="content001_content">
+                        <p class="content001_p_top">{{item.examName}}</p>
+                        <p class="content001_p_conent">考试分类：{{ item.examType==0?'问卷调查':(item.examType==1?'在线考试':'知识竞赛')}}</p>
+                        <p class="content001_p_conent">答题次数：{{item.answersNumber==0?'无限次':item.answersNumber}}</p>
+                        <p class="content001_p_conent">考试时长：{{item.examTime}}</p>
+                        <p class="content001_p_conent">及格分数：{{item.passScore}}</p>
+                    </div>
+                    <div class="content001_bottom">
+                        <div class="content001_bottom_div cp" @click="close(item)">关闭考试</div>|
+                        <div class="content001_bottom_div">--人已考</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content001">
+            <div class="title1">最近关闭的考试</div>
+            <div class="content001_max">
+                <div class="content001_div" v-for="(item,index) in list2" :key="index">
+                    <div class="content001_content">
+                        <p class="content001_p_top">{{item.examName}}</p>
+                        <p class="content001_p_conent">考试分类：{{ item.examType==0?'问卷调查':(item.examType==1?'在线考试':'知识竞赛')}}</p>
+                        <p class="content001_p_conent">答题次数：{{item.answersNumber==0?'无限次':item.answersNumber}}</p>
+                        <p class="content001_p_conent">考试时长：{{item.examTime}}</p>
+                        <p class="content001_p_conent">及格分数：{{item.passScore}}</p>
+                    </div>
+                    <div class="content001_bottom">
+                        <div class="content001_bottom_div cp" @click="findScore(item)">查看成绩</div>|
+                        <div class="content001_bottom_div">--人已考</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Home",
+        data(){
+            return{
+                params1:{//请求参数
+                    type:999,
+                    status:1,
+                    pageNum: 1,
+                    pageSize:3,
+                    searchKey:null
+                },params2:{//请求参数
+                    type:999,
+                    status:2,
+                    pageNum: 1,
+                    pageSize:3,
+                    searchKey:null
+                },
+                list1:[],//正在考试集合
+                list2:[],//已关闭考试集合
+                params3:{
+                    id:0,
+                    status:0,
+                    sign:0
+                },
+            }
+        },created(){
+            initData(this);
+        },methods:{
+            //点击跳转创建试题
+            wor_add(){
+                this.$router.push({name:'wor_add'})
+            },//点击跳转创建考试
+            addActiviti(){
+                this.$router.push({name:'addActiviti'})
+            },//点击跳转创建试卷
+            AddTestPaper(){
+                this.$router.push({name:'AddTestPaper'})
+            },
+            close:function (item) {
+                this.params3.id=item.examId;
+                this.params3.status=2;
+                if(item.failureDate==null){
+                    this.params3.sign=1;
+                }
+                updateStatus(this)
+            },
+            findScore:function f(item) {
+                this.$router.push({name:"score_users",params:{id:item.examId}});
+                }
+        }
+    }
+    function initData(_this) {
+        _this.$axios({
+            method: 'post',
+            url: '/biz/activity/findExamList',
+            params: _this.params1
+        }).then((res) => {
+            if (res.code==200) {
+                _this.totalCount=res.obj.total;
+                _this.list1=res.obj.list;
+                console.log("正在考试集合：--"+JSON.stringify(_this.list1))
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+        _this.$axios({
+            method: 'post',
+            url: '/biz/activity/findExamList',
+            params: _this.params2
+        }).then((res) => {
+            if (res.code==200) {
+                _this.totalCount=res.obj.total;
+                _this.list2=res.obj.list;
+                console.log("已经结束考试集合：--"+JSON.stringify(_this.list2))
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
+    function updateStatus(_this) {
+
+        _this.$confirm('确定关闭吗？').then(_ => {
+
+            _this.$axios({
+                url: '/biz/activity/updateStatus',
+                params: _this.params3
+            }).then((res) => {
+                if (res.code==200) {
+                    if(res.obj!=0){
+                        _this.$alert('关闭成功!')
+                        initData(_this)
+                    }else{
+                        _this.$alert('关闭失败!')
+                    }
+                }
+
+            }).catch((err) => {
+                console.log(err);
+            })
+
+
+
+        }).catch(_ => {
+        });
+
+    }
+
+</script>
+
+<style scoped>
+    .max{
+        width:100%;height:700px;
+    }
+    .content{
+        width: 100%;
+        height: 30%;
+        margin-bottom: 15px;
+    }
+    .content001{
+        width: 100%;
+        height: 35%;
+        margin-bottom: 15px;
+    }
+    .title1{width: 100%;height: 30px;}
+    .content1{
+        display: flex;
+        width: 100%;
+        height: 80%;
+    }
+    .content1_div{
+        width: 25%;
+        height: 100%;
+        border: #33ccff 1px solid;
+        margin-right:20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .content1_div_01{border: 1px solid #3c3c3c}
+    .content1_img{margin-left: 10px;margin-right: 10px}
+    .content001_max{
+        width: 100%;
+        height: 85%;
+    }
+    .content001_div{
+        float: left;
+        border: #999999 1px solid;
+        width: 20%;
+        height: 100%;
+        margin-right: 20px;
+    }
+    .content001_content{
+        width: 95%;
+        height: 150px;
+        margin-left: 10px;
+        margin-top: 10px;
+    }
+    .content001_p_top{font-size: 18px}
+    .content001_p_conent{
+        font-size:15px;color: #999999;
+        margin-bottom: 5px;
+    }
+    .content001_bottom{
+        border-top: #999999 solid 1px;
+        display: flex;justify-content: space-around;
+        color: #319D8E;
+        height: 100%;
+    }
+    .content001_bottom_div{margin-top: 5px;}
+    .cp {
+        cursor: pointer;
+    }
+</style>

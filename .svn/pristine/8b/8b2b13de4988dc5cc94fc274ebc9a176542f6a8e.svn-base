@@ -1,0 +1,99 @@
+<template>
+    <!--新增试卷的第一个页面-->
+    <div class="centoer">
+        <p class="title">试卷库<img src="../../../public/img/separator.png"/>新增</p>
+        <div class="btns">
+            <el-button type="primary" size="mini" v-on:click="toTopc">下一步</el-button>
+            <el-button type="warning" size="mini">取消</el-button>
+        </div>
+        <div class="tablPerp">
+            <div class="wai">
+                <div class="nei">
+                    <div class="ovh">
+                        <div class="mgt10 ww60">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">试卷名称:</span>
+                            <div class="mgl100">
+                                <input type="text" class="ww100 h40 lh40 pdl20 borf1 ras4">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ovh">
+                        <div class="mgt10 ww60">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">试卷分类:</span>
+                            <div class="mgl100">
+                                <select id="color" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                                    <option>请选择</option>
+                                    <!--<option v-for="item in colorList" v-bind:value="item.dictionaryValue">{{item.dictionaryDescribe}}</option>-->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ovh">
+                        <div class="mgt10 ww50">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">组卷方式:</span>
+                            <div class="mgl100">
+                                <select id="color" type="text" class="ww100 h40 lh40 pdl20 borf1 ras4" style="width: 400px">
+                                    <option>请选择</option>
+                                    <!--<option v-for="item in colorList" v-bind:value="item.dictionaryValue">{{item.dictionaryDescribe}}</option>-->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ovh">
+                        <div class="mgt10 ww50">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">试题个数:</span>
+                            <div class="mgl100">
+                                <input type="text" class="ww100 h40 lh40 pdl20 borf1 ras4">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ovh">
+                        <div class="mgt10 ww50">
+                            <span class="db w100 fl h40 lh40 cor0 pdl30">试卷总分:</span>
+                            <div class="mgl100">
+                                <input type="text" class="ww100 h40 lh40 pdl20 borf1 ras4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "AddTestPaper",
+        data() {
+            return {
+            }
+        },
+        mounted() {
+
+        },
+        methods:{
+            toTopc:function () {
+                this.$router.push("TopicSelection");
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .wai{
+        border-top: solid 1px #ddd
+    }
+    .nei{
+        margin:auto;
+        margin-top: 100px;
+        width:500px;
+        height:150px;
+    }
+    span{
+        font-size: 16px;
+    }
+    input{
+        margin-left: 0px;
+        width: 400px;
+    }
+</style>

@@ -1,0 +1,128 @@
+<template>
+	<div class="centoer">
+		<p class="title">
+			<font class="primary">成绩查看</font> &gt; 
+			<font class="primary">人员成绩</font> &gt; 
+			<font class="primary">考试记录</font> &gt; 
+			<font class="primary">得分明细</font>
+		</p>
+		<div class="btns">
+			<el-button size="mini"type="primary"  @click="$router.back()">返回</el-button>
+		</div>
+		<div class="selecteds clearfix">
+            <div class="fl">
+                <div class="h35 lh35 fl"> 考试结果：&nbsp;</div>
+                <el-select @change="searchHandle" class="mgr20 fl" popper-class="el-select" clearable clearable v-model="params.result"
+                           placeholder="考试结果">
+                    <el-option v-for="item in resultList" :key="item.seq" :label="item.desc"
+                               :value="item.seq"></el-option>
+                </el-select>
+                <ul class="fl df">
+                    <li class="pdr15 lh35">
+                        <span>错误题数：</span>
+                        <span><font color="red">{{ errorCount }}</font></span>
+                    </li>
+                    <li class="pdr15 lh35">
+                        <span>正确题数：</span>
+                        <span><font color="red">{{ successCount }}</font></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+		<div class="tablPerp">
+			<table class="mtable">
+				<tr>
+					<td>试题顺序</td>
+					<td>试题名称</td>
+					<td>正确答案</td>
+					<td>考生答案</td>
+					<td>考试结果</td>
+				</tr>
+				<tr v-for="(item,index) in list" :key="index">
+					<td> {{ item.optSeq || item.optSeq ===0 ? item.optSeq : '-' }} </td>
+					<td class="t-l lh25 pdl10 pdr10"> {{ item.content ? (item.content.length >105 ?item.content.substring(0,105)+'...':item.content) : '-' }} </td>
+					<td> {{ item.correct_char ? item.correct_char : '-' }} </td>
+					<td :class="item.myOptVal_char != item.correct_char?'colored':''"> {{ item.myOptVal_char ? item.myOptVal_char : '-' }} </td>
+					<td :class="item.result == 1?'colored':''"> {{ item.result ===0?'正确':'错误' }} </td>
+				</tr>
+			</tr>
+		</table>
+	</div>
+
+	<div>
+		<pageVue :pageData="page" @chekdpageCallcak="changedPage"></pageVue>
+	</div>
+</div>
+</template>
+
+<script>
+	import {resultList,numToChar} from '@/utils/dict.js'
+
+	export default {
+		name: "score_user_detail",
+		data() {
+			return {
+				params:{
+					pageNum: 1,
+					limit: 10,
+					totalCount: 1,
+					result: '',
+				},
+				resultList,
+				list:[]
+			}
+		},
+		methods:{
+			changedPage(index) {
+				this.params.pageNum = index;
+			},
+			searchHandle(){
+				initList.apply(this);
+			}
+		},
+		computed: {
+			page() {
+				return {
+                    curPage: this.params.pageNum,//当前页吗
+                    totalCount: this.params.totalCount,//总条数
+                    pageSize: this.params.limit,//页面大小
+                }
+            },
+            successCount(){
+            	return this.list.filter(x=>x.result === 0).length;
+            },
+            errorCount(){
+            	return this.list.length - this.successCount;
+            }
+        },
+        created(){
+        	initList.apply(this);
+        }
+    }
+function initList(){
+	const recordId = this.$route.params.id
+	const params = {...this.params}
+	this.$axios.get("/score/exam/details/"+recordId,{
+		params
+	}).then(res=>{
+		if(res.success){
+			this.list = res.obj.list;
+			this.list.forEach(x=>{
+				x.myOptVal_char = numToChar(x.myOptVal);
+				x.correct_code = x.subScoreOpts.filter(x=>x.isTrue === 0).map(x=>x.optionSeq).join(",");
+				x.correct_char = numToChar(x.correct_code);
+			})
+			this.totalCount = res.obj.total;
+		}
+	})
+}
+
+</script>
+
+<style scoped>
+.colored{
+	color: red;
+}
+</style>

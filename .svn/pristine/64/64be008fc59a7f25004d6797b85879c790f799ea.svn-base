@@ -1,0 +1,139 @@
+<template>
+    <div class="centoer">
+        <p class="title">
+            <font class="primary cp td-u" @click="$router.go(-1);">成绩查看</font> &gt; 
+            <font>人员成绩</font>
+        </p>
+        <div class="btns ">
+            <el-button type="primary" size="mini" @click="$router.back()">返回</el-button>
+        </div>
+        <div class="selecteds clearfix">
+            <div class="fl">
+                <!-- <div class="h35 lh35 fl"> 是否及格：&nbsp;</div> -->
+                <el-select @change="searchHandle" class="mgr20 fl" popper-class="el-select" clearable v-model="params.isPass"
+                           placeholder="是否及格">
+                    <el-option v-for="item in passList" :key="item.seq" :label="item.desc"
+                               :value="item.seq"></el-option>
+                </el-select>
+                <ul class="fl df">
+                    <li class="pdr15 lh35">
+                        <span>及格人数：</span>
+                        <span><font
+                                color="red">{{ $route.query.passCount ? $route.query.passCount : '-' }}</font></span>
+                    </li>
+                    <li class="pdr15 lh35">
+                        <span>不及格人数：</span>
+                        <span><font color="red">{{ $route.query.total && $route.query.passCount ? ($route.query.total - $route.query.passCount) : '-' }}</font></span>
+                    </li>
+                    <li class="pdr15 lh35">
+                        <span>及格率：</span>
+                        <span><font
+                                color="red">{{ $route.query.pass ? ($route.query.pass * 100) +'%' : ''}}</font></span>
+                    </li>
+                </ul>
+            </div>
+            <el-input class="saerch_input fr" placeholder="搜索考生姓名" v-model.trim="params.keyWord">
+                <i class="el-icon-search" slot="suffix" @click="searchHandle"> </i>
+            </el-input>
+        </div>
+
+
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <td>姓名</td>
+                    <td>电话</td>
+                    <td>微信号</td>
+                    <td>考试次数</td>
+                    <td>最终得分</td>
+                    <td>总分</td>
+                    <td>是否及格</td>
+                    <td>操作</td>
+                </tr>
+                <tr v-for="item in list" :key="item.examId">
+                    <td> {{ item.exName ? item.exName : '-'}}</td>
+                    <td> {{ item.exPhone ? item.exPhone : '-'}}</td>
+                    <td> {{ item.exWx ? item.exWx : '-'}}</td>
+                    <td> {{ item.seq ? item.seq : '-'}}</td>
+                    <td :class="item.score <60 ?'colred':''"> {{ item.score ? item.score : '-'}}</td>
+                    <td> {{ item.total ? item.total : '-'}}</td>
+                    <td :class="item.isPass === 1 ?'colred':''"> {{ item.isPass === 0?'及格':'未及格' }}</td>
+                    <td>
+                        <router-link :to="{
+                            name:'score_user_record',
+                            params:{
+                                id:item.exId
+                            },
+                        }" style="color: #38C6B6">考试记录</router-link>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <pageVue :pageData="page" @chekdpageCallcak="changedPage"></pageVue>
+        </div>
+    </div>
+</template>
+
+<script>
+    import {passList} from '@/utils/dict.js'
+
+    export default {
+        name: "score_users",
+        data() {
+            return {
+                params: {
+                    pageNum: 1,
+                    limit: 10,
+                    keyWord: '',
+                    totalCount: 1,
+                    isPass: ''
+                },
+                list: [],
+                passList,
+            }
+        },
+        methods: {
+            changedPage(index) {
+                this.params.pageNum = index;
+                initList.apply(this);
+            },
+            searchHandle() {
+                this.params.pageNum = 1;
+                initList.apply(this);
+            }
+        },
+        computed: {
+            page() {
+                return {
+                    curPage: this.params.pageNum,//当前页吗
+                    totalCount: this.params.totalCount,//总条数
+                    pageSize: this.params.limit,//页面大小
+                }
+            }
+        },
+        created() {
+            initList.apply(this);
+        }
+    }
+
+    function initList() {
+        const params = {...this.params};
+        const examId = this.$route.params.id;
+        if(params.isPass < 0) delete params.isPass
+
+        this.$axios.get("/score/users/" + examId, {params}).then(res => {
+            if (res.success) {
+                this.list = res.obj.list;
+                this.params.totalCount = res.obj.total;
+            }
+        })
+    }
+</script>
+
+<style scoped>
+.colred{
+    color: red;
+}
+</style>

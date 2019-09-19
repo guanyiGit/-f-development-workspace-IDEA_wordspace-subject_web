@@ -1,0 +1,181 @@
+<template>
+    <div class="centoer">
+        <p class="title">
+            <font class="primary cp td-u" @click="$router.go(-1);">试题库</font> &gt; 
+            <font class="primary">新增</font>
+        </p>
+        <div class="btns">
+            <el-button size="mini" type="primary" @click="$router.go(-1)">返回</el-button>
+        </div>
+        
+        <div class="selecteds">
+            题型：&nbsp;
+            <span style="color: red;">{{ questionTypes }}</span>
+        </div>
+
+        <div class="bord-cm mgb30 pdt2 ">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">试题名称</span>
+                <span>
+                   
+                </span>
+            </p>
+            <div>
+                <el-input disabled type="textarea" :rows="6" placeholder="无内容" :value="detail.subjectContent">
+                </el-input>
+            </div>
+        </div>
+
+
+        <div class="bord-cm mgb30 pdt2" v-if="detail.subjectUrl">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">试题图片</span>
+                <span>
+                    <font color="#c1c1c1">可以放大查看</font>
+                </span>
+                <div>
+                    <div class="subjectUrl" v-viewer="{movable: false}">
+                        <img class="h150 w270 cp" :src="detail.subjectUrl" @click="$event.target.parentNode.$viewer.show()" :alt="detail.uname+'创建的试卷'">
+                    </div>
+                </div>
+            </p>
+        </div>
+
+        <div class="bord-cm mgb30 pdt2 ">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">选项</span>
+                <span>
+                    <font color="#c1c1c1">被勾选的为正确答案</font>
+                </span>
+            </p>
+            <div>
+                <ul class="ul-ad">
+                    <li class="dfl aic pdl10" v-for="(item,index) in detail.tSubjectOptions" :key="index">
+                        <span>
+                            <el-checkbox class="ras100" :value="item.isTrue === 0"></el-checkbox>
+                        </span>
+                        <span class="ww80 mgr20 mgl20">
+                            <el-input disabled :value="item.optionValue"></el-input>
+                        </span>
+                        <!-- <span class="fs16 mgr10">
+                            <font class="el-icon-close cp horcc" color="red" @click="removeOptHandle(index)"></font>
+                        </span>
+                        <span class="fs16">
+                            <font color="green" class="el-icon-plus cp horcc" @click="addOptHandle(index)"></font>
+                        </span> -->
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bord-cm mgb30 pdt2 ">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">解析</span>
+                <span>
+                    <font color="#c1c1c1">本题的解析部分</font>
+                </span>
+            </p>
+            <div>
+                <el-input type="textarea" disabled :rows="6" placeholder="无内容" v-model="detail.subjectAnalysis">
+                </el-input>
+            </div>
+        </div>
+
+    </div>
+</template>
+
+<script>
+    import {subjectDifficultyList, subjectModeList, sunjectTypeList} from '@/utils/dict'
+    import ImgUpload from '@/components/imgUpload'
+    import LargeImg from '@/components/LargeImg'
+
+    export default {
+        name: "WorView",
+        data() {
+            return {
+                subjectModeList,
+                 params: {
+                    sunjectType: '',//题目类型  opts
+                    subjectMode: '',//题目分类  opts
+                    subjectDifficulty: '',//题目难度 opts
+                    subjectContent: '',//题目内容
+                    subjectAnalysis: '',//题目解析
+                    tSubjectOptions: [
+                        {
+                            optionValue: '',//选项值
+                            isTrue: false,//是否是正确选项
+                        },
+                        {
+                            optionValue: '',//选项值
+                            isTrue: false,//是否是正确选项
+                        },
+                        {
+                            optionValue: '',//选项值
+                            isTrue: false,//是否是正确选项
+                        },
+                        {
+                            optionValue: '',//选项值
+                            isTrue: false,//是否是正确选项
+                        }
+                    ]
+                },
+               detail:{}
+            }
+        },
+        components:{ LargeImg },
+        methods: {
+        },
+        created() {
+            detail.apply(this);
+        },
+        computed:{
+            questionTypes(){
+                try{ 
+                    return this.subjectModeList.filter(x=>x.seq === this.detail.subjectMode)[0].desc
+                }catch(err){}
+                return '其他'
+            }
+        }
+        
+    }
+
+    function detail(){
+        this.$axios.get("/biz/wor/detail/"+this.$route.params.id).then(res=>{
+            if(res.success){
+                this.detail = res.obj;
+            }
+        })
+
+    }
+    
+</script>
+
+<style scoped>
+    .bord-cm {
+        border: solid 1px #ddd;
+    }
+
+    .ul-ad {
+        border: solid 1px #eee;
+        padding-top: 20px;
+        margin-bottom: 3px;
+    }
+
+    .ul-ad li {
+        margin: 10px 0;
+    }
+
+    .selecteds {
+        line-height: 30px;
+    }
+
+    .horcc:hover {
+        background-color: orange;
+    }
+</style>
+<style>
+    .ct .el-input__inner {
+        background-color: #f6f6f6;
+    }
+
+</style>

@@ -1,0 +1,412 @@
+<template>
+    <!--选题页面-->
+    <div class="centoer">
+        <p class="title">试卷库<img src="../../../public/img/separator.png"/>新增</p>
+        <div class="btns">
+            <el-button type="primary" size="mini" v-on:click="preStep">上一步</el-button>
+            <el-button type="primary" size="mini" v-on:click="toTopc">下一步</el-button>
+        </div>
+        <div class="tablPerp">
+            <div class="wai">
+                    <div class="div-inline inlin1">
+                        <p style="font-size: 15px;margin-top: 10px" class="top10">可选试题： <span style="color: red">{{totalPage1}}题</span></p>
+                        <div class="selecteds">
+                            <!--<el-select v-model="params1.paperType" popper-class="el-select" placeholder="试卷分类" v-on:change="change1">-->
+                                <!--<el-option v-for="(item,index) in options" :key="index" :label="item.label" :value="item.value"></el-option>-->
+                            <!--</el-select>-->
+                            <!--<span>&nbsp;&nbsp;</span>-->
+                            <el-select v-model="params1.difficulty" popper-class="el-select" placeholder="难度" v-on:change="change1">
+                                <el-option v-for="(item,index) in options1" :key="index" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                            <el-input class="saerch_input fr" placeholder="搜索试题内容" v-model.trim="params1.input" @keyup.enter.native="searchHandle1" style="margin-right: 21%">
+                                <i class="el-icon-search" slot="suffix" @click="searchHandle1"> </i>
+                            </el-input>
+                        </div>
+                        <table class="mtable">
+                            <tr>
+                                <td><el-checkbox v-model="quanxuan" size="100"></el-checkbox></td>
+                                <td>试题分类</td>
+                                <td>试题名称</td>
+                                <td>难度</td>
+                            </tr>
+                            <tr v-for="(item,index) in tableData1" :key="index">
+                                <td><el-checkbox v-model="item.isCheckd" size="100"></el-checkbox></td>
+                                <td style="width: 75px">{{item.subjectMode==0?'问卷调查':item.subjectMode==1?'在线考试':item.subjectMode==2?'知识竞赛':''}}</td>
+                                <td><div>{{item.subjectContent}}</div></td>
+                                <td style="width: 50px">{{item.subjectDifficulty==0?'简单':item.subjectDifficulty==1?'一般':item.subjectDifficulty==2?'困难':''}}</td>
+                            </tr>
+                        </table>
+                        <div>
+                            <pageVue :pageData="page1" @chekdpageCallcak="changedPage1"></pageVue>
+                        </div>
+                    </div>
+
+                    <div class="div-inline inlin2">
+                        <div class="baoguo">
+                            <div class="yidong" v-on:click="toRight">&gt;&gt;</div>
+                            <div class="yidong" v-on:click="toLeft" style="margin-top: 50px">&lt;&lt;</div>
+                        </div>
+                    </div>
+
+                    <div class="div-inline inlin3">
+                        <p style="font-size: 15px;margin-top: 10px" class="top10">
+                            <span>已选试题： </span>
+                            <span style="color: red">{{parmQuestion.tSubjectRefPapers.length}}题</span>
+                            <span style="margin-left: 20px">试卷设置的试题个数： </span>
+                            <span v-if="parmQuestion.judge==1 && parmQuestion.paperId!=null" style="color: red">{{parmQuestion.tSubjectRefPapers.length}}题</span>
+                            <span v-else style="color: red">{{parmQuestion.paperNumber}}题</span>
+                        </p>
+                        <div class="selecteds">
+                            <!--<el-select v-model="params2.paperType" popper-class="el-select" placeholder="试卷分类" v-on:change="change2">-->
+                                <!--<el-option v-for="(item,index) in options" :key="index" :label="item.label" :value="item.value"></el-option>-->
+                            <!--</el-select>-->
+                            <!--<span>&nbsp;&nbsp;</span>-->
+                            <el-select v-model="params2.difficulty" popper-class="el-select" placeholder="难度" v-on:change="change2">
+                                <el-option v-for="(item,index) in options1" :key="index" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                            <el-input class="saerch_input fr" placeholder="搜索试题内容" v-model.trim="params2.input" @keyup.enter.native="searchHandle2" style="margin-right: 21%">
+                                <i class="el-icon-search" slot="suffix" @click="searchHandle2"> </i>
+                            </el-input>
+                        </div>
+                        <table class="mtable">
+                            <tr>
+                                <td><el-checkbox v-model="quanxuan1" size="100"></el-checkbox></td>
+                                <td>试题分类</td>
+                                <td>试题名称</td>
+                                <td>难度</td>
+                            </tr>
+                            <tr v-for="(item,index) in tableData2" :key="index">
+                                <td><el-checkbox v-model="item.isCheckd" size="100"></el-checkbox></td>
+                                <td style="width: 75px">{{item.subjectMode==0?'问卷调查':item.subjectMode==1?'在线考试':item.subjectMode==2?'知识竞赛':''}}</td>
+                                <td><div>{{item.subjectContent}}</div></td>
+                                <td style="width: 50px">{{item.subjectDifficulty==0?'简单':item.subjectDifficulty==1?'一般':item.subjectDifficulty==2?'困难':''}}</td>
+                            </tr>
+                        </table>
+                        <div>
+                            <pageVue :pageData="page2" @chekdpageCallcak="changedPage2"></pageVue>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "TopicSelection",
+        data() {
+            return {
+                quanxuan:false,
+                quanxuan1:false,
+                checked1:true,
+                parmQuestion:{
+                    paperId:null,//试卷表主键
+                    paperType:null,//试卷分类
+                    paperMode:0,//组卷方式
+                    paperName:null,//试卷名称
+                    paperNumber:null,//题目个数
+                    paperTotalScore:null,//题目总分
+                    paperStatus:null,//试卷状态
+                    paperCreater:null,//创建人主键
+                    paperCreateTime:null,//创建时间
+                    typeList:[],//存放不同类型的试题个数键值对
+                    difficultyList:[],//存放不同难度的试题个数键值对
+                    tSubjectRefPapers:[],//试卷试题关联表集合
+                    difficulty:null,//查询条件：试题难度
+                    type:null,//查询条件：试题类型
+                    num:1,//
+                    size:10,
+                    input:null,//查询条件
+                    judge:0//用来判断试修改还是新增 1是修改
+                },
+                options: [{
+                    value: 9,
+                    label: '全部'
+                },{
+                    value: 0,
+                    label: '问卷调查'
+                }, {
+                    value: 1,
+                    label: '在线考试'
+                }, {
+                    value: 2,
+                    label: '知识竞赛'
+                }],
+                options1: [{
+                    value: 9,
+                    label: '全部'
+                },{
+                    value: 0,
+                    label: '简单'
+                }, {
+                    value: 1,
+                    label: '一般'
+                },{
+                    value: 1,
+                    label: '困难'
+                }],
+                params1:{
+                    paperType:null,
+                    difficulty:null,
+                    input:null,
+                    num:1,
+                    size:6
+                },
+                params2:{
+                    paperType:null,
+                    difficulty:null,
+                    input:null,
+                    num:1,
+                    size:6
+                },
+                tableData1: [],
+                tableData2: [],
+                totalPage1:0,
+                totalPage2:0
+            }
+        },
+        created(){
+            this.parmQuestion=JSON.parse(sessionStorage.getItem("parmQuestion"));
+            initData1(this);
+            initData2(this);
+        },
+        mounted() {
+
+        },
+        computed:{
+            page1() {
+                return {
+                    curPage: this.params1.num,//当前页吗
+                    totalCount: this.totalPage1,//总条数
+                    pageSize: this.params1.size,//页面大小
+                }
+            },
+            page2() {
+                return {
+                    curPage: this.params2.num,//当前页吗
+                    totalCount: this.totalPage2,//总条数
+                    pageSize: this.params2.size,//页面大小
+                }
+            }
+        },
+        watch:{
+            'quanxuan': function(newVal){
+                if (newVal==true) {
+                    for (var i=0;i<this.tableData1.length;i++){
+                        this.tableData1[i].isCheckd=true;
+                    }
+                }
+                if (newVal==false) {
+                    for (var j=0;j<this.tableData1.length;j++){
+                        this.tableData1[j].isCheckd=false;
+                    }
+                }
+            },
+            'quanxuan1': function(newVal){
+                if (newVal==true) {
+                    for (var i=0;i<this.tableData2.length;i++){
+                        this.tableData2[i].isCheckd=true;
+                    }
+                }
+                if (newVal==false) {
+                    for (var j=0;j<this.tableData2.length;j++){
+                        this.tableData2[j].isCheckd=false;
+                    }
+                }
+            },
+        },
+        methods:{
+            searchHandle1() {
+                this.params1.num = 1;
+                initData1(this);
+            },
+            changedPage1(index) {
+                this.params1.num = index;
+                initData1(this);
+            },
+            searchHandle2() {
+                this.params2.num = 1;
+                initData2(this);
+            },
+            changedPage2(index) {
+                this.params2.num = index;
+                initData2(this);
+            },
+            toTopc:function () {
+                if (this.parmQuestion.judge==1 && this.parmQuestion.paperId!=null) {
+                    this.parmQuestion.paperNumber=this.parmQuestion.tSubjectRefPapers.length;
+                }
+                if (this.parmQuestion.tSubjectRefPapers.length != this.parmQuestion.paperNumber){
+                    this.$alert("已选试题个数与设置的试题个数不相等，请调整已选题目个数！");
+                    return
+                }
+                sessionStorage.setItem("parmQuestion",JSON.stringify(this.parmQuestion));
+                this.$router.push("SetUpScore");
+            },
+            preStep:function () {
+                // this.$router.push("AddTestPaper");
+                this.$router.go(-1);
+            },
+            change1:function () {
+                this.params1.num=1
+                initData1(this);
+            },
+            change2:function () {
+                this.params2.num=1
+                initData2(this);
+            },
+            toRight:function () {
+                for (var i=0;i<this.tableData1.length;i++){
+                    if (this.tableData1[i].isCheckd==true) {
+                        var tSubjectRefPaper={
+                            subjectId:this.tableData1[i].subjectId,
+                            paperId:null,
+                            score:null,
+                        }
+                        this.parmQuestion.tSubjectRefPapers.push(tSubjectRefPaper);
+                    }
+                }
+                initData1(this);
+                initData2(this)
+            },
+            toLeft:function () {
+                for (var i=0;i<this.tableData2.length;i++){
+                    if (this.tableData2[i].isCheckd==true) {
+                        for (var j=0;j<this.parmQuestion.tSubjectRefPapers.length;j++){
+                            if (this.tableData2[i].subjectId==this.parmQuestion.tSubjectRefPapers[j].subjectId) {
+                                this.parmQuestion.tSubjectRefPapers.splice(j, 1)
+                            }
+                        }
+                    }
+                }
+                initData1(this);
+                initData2(this)
+            }
+        }
+    }
+
+    function initData1(_this) {
+        // _this.parmQuestion.type=_this.params1.paperType
+        _this.parmQuestion.difficulty=_this.params1.difficulty
+        _this.parmQuestion.num=_this.params1.num
+        _this.parmQuestion.size=_this.params1.size
+        _this.parmQuestion.input=_this.params1.input
+        if (_this.parmQuestion.type == 9 || _this.parmQuestion.type == "9") {
+            _this.parmQuestion.type=null;
+        }
+        if (_this.parmQuestion.difficulty == 9 || _this.parmQuestion.difficulty == "9") {
+            _this.parmQuestion.difficulty=null;
+        }
+        _this.$axios({
+            url: '/biz/testPaperLib/createTestPapperLeftList',
+            method: 'post',
+            headers:{
+                'Content-Type': 'application/json;charset=UTF-8'
+            },
+            data: JSON.stringify(_this.parmQuestion),
+            // isloading: true,
+        }).then((res) => {
+            if (res.code == 200) {
+                if (res.obj == null) {
+                    _this.tableData1 = []
+                    _this.totalPage1 = 0
+                } else {
+                    res.obj.list.map(item => {
+                        item.isCheckd = false;//默认未选中
+                    })
+                    _this.tableData1 = res.obj.list
+                    _this.totalPage1 = res.obj.total
+                }
+            }
+        }).catch((res) => {
+            console.log(res)
+        })
+    }
+    function initData2(_this) {
+        // _this.parmQuestion.type=_this.params2.paperType
+        _this.parmQuestion.difficulty=_this.params2.difficulty
+        _this.parmQuestion.num=_this.params2.num
+        _this.parmQuestion.size=_this.params2.size
+        _this.parmQuestion.input=_this.params2.input
+        if (_this.parmQuestion.type == 9 || _this.parmQuestion.type == "9") {
+            _this.parmQuestion.type=null;
+        }
+        if (_this.parmQuestion.difficulty == 9 || _this.parmQuestion.difficulty == "9") {
+            _this.parmQuestion.difficulty=null;
+        }
+        _this.$axios({
+            url: '/biz/testPaperLib/creTePaSetScoreList',
+            method: 'post',
+            headers:{
+                'Content-Type': 'application/json;charset=UTF-8'
+            },
+            data: JSON.stringify(_this.parmQuestion),
+            // isloading: true,
+        }).then((res) => {
+            if (res.code == 200) {
+                if (res.obj == null) {
+                    _this.tableData2 = []
+                    _this.totalPage2 = 0
+                } else {
+                    res.obj.list.map(item => {
+                        item.isCheckd = false;//默认未选中
+                    })
+                    _this.tableData2 = res.obj.list
+                    _this.totalPage2 = res.obj.total
+                }
+            }
+        }).catch((res) => {
+            console.log(res)
+        })
+    }
+</script>
+
+<style scoped>
+    .wai{
+        height: 750px;
+        border-top: solid 1px #ddd;
+        width:100%;
+        margin:0 auto;
+        overflow:hidden;
+    }
+    .div-inline{
+        float:left;/*将块元素div设定为左浮动*/
+        /*display:inline-block; _display:inline;*/
+    }
+    .inlin1{
+        width: 40%;
+        height:500px;
+    }
+    .inlin2{
+        width: 10%;
+        height:500px;
+        display:table;
+    }
+    .inlin3{
+        width: 40%;
+        height:500px;
+    }
+    .yidong{
+        width: 70px;
+        height: 30px;
+        background-color: rgb(46, 197, 182);
+        border-radius: 15px;
+        font-size: 30px;
+        color: rgb(255, 255, 255);
+        text-align: center;
+        line-height: 25px;
+        cursor:pointer;
+        margin: auto;
+    }
+    .baoguo{
+        display:table-cell;
+        vertical-align:middle;
+    }
+    tr div{
+        max-height: 80px;
+        /*white-space: nowrap;*/
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+</style>

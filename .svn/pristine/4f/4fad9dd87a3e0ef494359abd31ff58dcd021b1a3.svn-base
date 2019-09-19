@@ -1,0 +1,108 @@
+<template>
+    <div class="centoer">
+        <p class="title">活动管理</p>
+        <div class="btns">
+            <el-button type="primary" size="mini">新增</el-button>
+            <el-button type="primary" size="mini">删除</el-button>
+            <!--<el-button type="primary" size="mini">模板下载</el-button>
+            <el-button type="warning" size="mini">删除</el-button>-->
+        </div>
+        <div class="selecteds">
+            <el-select v-model="type" popper-class="el-select" placeholder="活动分类"/>
+            <el-select v-model="status" popper-class="el-select" placeholder="状态"/>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <td></td>
+                    <td>活动分类</td>
+                    <td>活动名称</td>
+                    <td>总分</td>
+                    <td>考试时长</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>考试生效时间</td>
+                    <td>考试失效时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+            </table>
+
+        </div>
+        <div>
+            <!--<pageVue></pageVue>-->
+            <page-vue :pageData="pageData" @chekdpageCallcak="changedPage"></page-vue>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Exam",
+        data() {
+            return {
+                params:{//请求参数
+                    pageNum: 1,
+                    pageSize:6,
+                    searchKey:null
+                },
+                totalCount:0
+            }
+        },
+        created() {
+            initData(this)
+        },
+        mounted() {
+
+        },
+        computed: {
+            //分页参数
+            pageData() {
+                return {
+                    curPage: this.params.pageNum,//当前页吗
+                    totalCount: this.totalCount,//总条数
+                    pageSize: this.params.pageSize//页面大小}
+                }
+            },
+
+        },
+        methods:{
+            changedPage(pageNum){
+                this.params.pageNum = pageNum
+            }
+        }
+    }
+
+
+    function initData(_this) {
+
+        _this.params.searchKey=_this.params.searchKey.trim()
+        _this.$axios({
+            method: 'post',
+            url: '/biz/exam/findExamList',
+            params: _this.params
+        }).then((res) => {
+            console.log(777)
+            console.log(res)
+            if (res.data) {
+                _this.mmuneList = res.data.list;
+                _this.page = res.data.pageInfo;
+                for (let i=0;i<_this.mmuneList.length;i++) {
+                    if(_this.mmuneList[i].dog_gender!=null){
+                        _this.mmuneList[i].dog_gender=_this.mmuneList[i].dog_gender==0?'雄':'雌'
+                    }
+                    if(_this.mmuneList[i].birth_time!=null){
+                        _this.mmuneList[i].birth_time=CalAge(_this.mmuneList[i].birth_time)
+                    }
+                }
+                console.log("_this.mmuneList+++"+JSON.stringify(_this.mmuneList))
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+</script>
+
+<style scoped>
+
+</style>

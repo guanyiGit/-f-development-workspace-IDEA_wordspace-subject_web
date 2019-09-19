@@ -1,0 +1,114 @@
+<template>
+	<div class="centoer">
+		<p class="title">
+			<font class="primary cp td-u" @click="$router.go(-2);">成绩查看</font> &gt; 
+			<font class="primary cp td-u" @click="$router.go(-1);">人员成绩</font> &gt; 
+			<font>考试记录</font>
+		</p>
+		<div class="btns">
+			<el-button size="mini"type="primary"  @click="$router.back()">返回</el-button>
+		</div>
+		<div class="selecteds" style="height: 35px;">
+			<div>
+				<div class="h35 lh35 fl"> 活动名称：&nbsp;</div>
+				<span class="h35 lh35 mgr10" style="color: red;">{{ activityName }}</span>
+			</div>
+		</div>
+
+
+		<div class="tablPerp">
+			<table class="mtable">
+				<tr>
+					<td>次数</td>
+					<td>得分</td>
+					<td>开始时间</td>
+					<td>结束时间</td>
+					<td>用时</td>
+					<td>创建时间</td>
+					<td>操作</td>
+				</tr>
+				<tr v-for="item in list" :key="item.recordId">
+					<td> {{ item.seq ? item.seq : '-' }} </td>
+					<td> {{ item.score || item.score===0 ? item.score : '-' }} </td>
+					<td> {{ item.startTime ? $moment(item.startTime).format('YYYY年MM月DD日 HH:mm') : '-' }} </td>
+					<td> {{ item.endTime || item.endTime===0? $moment(item.endTime).format('YYYY年MM月DD日 HH:mm') : '-' }} </td>
+					<td> {{ item.useTime || item.useTime===0? item.useTime+' 分钟' : '-' }} </td>
+					<td> {{ item.creationTime ? $moment(item.creationTime).format('YYYY年MM月DD日 HH:mm') : '-' }} </td>
+					<td>
+						<router-link :to="{
+							name:'score_user_detail',
+							params:{
+								id:item.recordId,
+							},
+							query:{
+								examType:item.examType
+							}
+						}" style="color: #38C6B6">得分明细</router-link>
+					</td>
+				</tr>
+		</table>
+	</div>
+
+	<div>
+		<pageVue :pageData="page" @chekdpageCallcak="changedPage"></pageVue>
+	</div>
+</div>
+</template>
+
+<script>
+
+	export default {
+		name: "score_user_record",
+		data() {
+			return {
+				params:{
+					pageNum: 1,
+					limit: 10,
+					keyWord: '',
+					totalCount: 1,
+				},
+				list:[]
+			}
+		},
+		methods:{
+			changedPage(index) {
+				this.params.pageNum = index;
+				initList.apply(this);
+			},
+		},
+		computed: {
+			page() {
+				return {
+                    curPage: this.params.pageNum,//当前页吗
+                    totalCount: this.params.totalCount,//总条数
+                    pageSize: this.params.limit,//页面大小
+                }
+            },
+            activityName(){
+            	try{return this.list.filter(x=>x.examName)[0].examName}catch(err){}
+            	return '-'
+            }
+        },
+        created(){
+        	initList.apply(this);
+        }
+    }
+function initList(){
+	const exId = this.$route.params.id
+	const params = {...this.params}
+	params.examId = this.$route.query.examId
+	this.$axios.get("/biz/score/user/dateils/"+exId,{
+		params
+	}).then(res=>{
+		if(res.success){
+			this.list = res.obj.list;
+			this.params.totalCount = res.obj.total;
+		}
+	})
+}
+
+</script>
+
+<style scoped>
+
+</style>

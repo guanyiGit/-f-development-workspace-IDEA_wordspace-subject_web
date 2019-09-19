@@ -1,0 +1,60 @@
+<template>
+    <div class="layout-menu">
+        <ul>
+            <li @click="changdMenuHandle(index)" :class="index === menuIndex ?'activeMenuCls':''" class="cp" tag="li" v-for="(item,index) in menus" :key="index"><span>{{ item.name }}</span></li>
+            <!-- <router-link @click.prevent="$alert('1')" :class="index === menuIndex+1 ?'activeMenuCls':''" class="cp" tag="li" :to="{name:item.link}" v-for="(item,index) in menus" :key="index"><span>{{ item.name }}</span></router-link> -->
+        </ul>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Menu",
+        data() {
+            return {
+                menuIndex:0,
+                menus: [
+                    {link: 'home', name: '首页'},
+                    {link: 'wor', name: '试题库'},
+                    {link: 'TestPaperList', name: '试卷库'},
+                    {link: 'exam', name: '活动管理'},
+                    {link: 'score', name: '结果查看'},
+                    {link: 'permission', name: '用户权限'},
+                ]
+            }
+        },
+        methods:{
+            changdMenuHandle(index){
+                const item = this.menus[index];
+                this.$router.push({'name':item.link},_=>this.menuIndex = index);
+                
+            }
+        }
+    }
+</script>
+
+<style lang="scss" scoped>
+    .layout-menu {
+        width: 180px;
+        background-color: #319D8E;
+        height: 100%;
+        /*min-height: 680px;*/
+        li {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+        }
+        li:hover{
+            color: lightgreen;
+            background-color: #6e9E2e;
+        }
+        .activeMenuCls{
+            background-color: olivedrab;
+        }
+    }
+    
+</style>

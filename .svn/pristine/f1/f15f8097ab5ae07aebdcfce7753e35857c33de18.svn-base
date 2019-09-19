@@ -1,0 +1,66 @@
+<template>
+    <div class="app">
+        <router-view/>
+    </div>
+</template>
+
+<script>
+    import '../public/css/common.css'
+
+    export default {
+        name: "app"
+    }
+</script>
+
+<style>
+    .cp {
+        cursor: pointer;
+    }
+    .app .el-main{
+        padding-left: 0;
+    }
+    .el-select {
+        width: 180px;
+    }
+
+    .el-input--suffix .el-input__inner, .app .el-input__icon {
+        height: 35px;
+        line-height: 35px;
+    }
+    .navclas{
+        background-color: #319D8E;
+    }
+    .app .el-button--primary{
+        background-color: #319D8E;
+    }
+    .app .el-header{
+        padding: 0 10px;
+    }
+    .tablPerp{
+        min-height: 500px;
+        box-shadow: 2px 2px 8px #ddd;
+        font-size: 14px;
+    }
+    .mtable td{
+        border: solid 1px #ddd;
+        min-width: 20px;
+    }
+    .mtable tr{
+        height: 40px;
+        line-height: 40px;
+    }
+    .mtable tr:first-child~tr:nth-child(even){
+        background-color:#EEEEEE ;
+    }
+    .title{
+        border-bottom: solid 1px #ddd;
+        padding-bottom: 10px;
+    }
+    .btns,.selecteds{
+        height: 50px;
+    }
+
+    .app .el-button--primary:focus, .app .el-button--primary:hover{
+        background-color: #318D4E;
+    }
+</style>

@@ -1,0 +1,55 @@
+<template>
+    <div class="layout_top">
+        <ul class="ul">
+            <li class="logo">
+                <img src="../../assets/logo.png" alt="">
+                <span>活动管理平台</span>
+            </li>
+            <li class="singOut">
+                <img src="../../assets/signOut.png" alt="">
+                <span @click="loulogin">注销</span>
+            </li>
+            <li class="amdin">
+                <img src="../../assets/user.png" alt="">
+                <span>---</span>
+            </li>
+        </ul>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Top",data(){
+            return{a:''}
+
+        },methods:{
+            loulogin(){
+                this.$router.push({name:'login'})
+            }
+        }
+    }
+</script>
+
+<style lang="scss" scoped>
+    .layout_top {
+        width: 100%;
+        .ul {
+            padding: 10px 20px;
+            background-color: #aaa;
+            li{
+                display: inline-block;
+            }
+            .logo ~ li{
+                float: right;
+            }
+            .singOut{
+                margin-left: 20px;
+            }
+        }
+        img{
+            height: 30px;
+            width: 30px;
+            margin-right: 5px;
+        }
+    }
+</style>

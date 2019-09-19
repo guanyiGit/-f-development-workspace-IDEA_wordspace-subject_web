@@ -1,0 +1,155 @@
+<template>
+	<div class="centoer">
+		<p class="title">
+			<font class="primary cp td-u" @click="$router.go(-3);">成绩查看</font> &gt; 
+			<font class="primary cp td-u" @click="$router.go(-2);">人员成绩</font> &gt; 
+			<font class="primary cp td-u" @click="$router.go(-1);">考试记录</font> &gt; 
+			<font>得分明细</font>
+		</p>
+		<div class="btns">
+			<el-button size="mini"type="primary"  @click="$router.back()">返回</el-button>
+		</div>
+		<div class="selecteds clearfix">
+            <div class="fl" v-if="!(examType==0)">
+                <!-- <div class="h35 lh35 fl"> 考试结果：&nbsp;</div> -->
+                <el-select @change="searchHandle" class="mgr20 fl" popper-class="el-select" clearable clearable v-model="params.result"
+                           placeholder="结果">
+                    <el-option v-for="item in resultList" :key="item.seq" :label="item.desc"
+                               :value="item.seq"></el-option>
+                </el-select>
+                <ul class="fl df">
+                    <li class="pdr15 lh35">
+                        <span>错误题数：</span>
+                        <span><font color="red">{{ errorCount }}</font></span>
+                    </li>
+                    <li class="pdr15 lh35">
+                        <span>正确题数：</span>
+                        <span><font color="red">{{ successCount }}</font></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+		<div class="tablPerp">
+			<table class="mtable">
+				<tr>
+					<td>题目顺序</td>
+					<td>题目内容</td>
+					<td v-if="!(examType==0)">正确答案</td>
+					<td>考生答案</td>
+					<td v-if="!(examType==0)">考试结果</td>
+					<td v-if="!(examType==0)">操作</td>
+				</tr>
+				<tr v-for="(item,index) in list" :key="index">
+					<td> {{ item.optSeq || item.optSeq ===0 ? item.optSeq : '-' }} </td>
+					<td class="lh25 pdl10 pdr10 t-l">
+                        <span v-if="!item.content && item.subjectUrl">
+                            <div v-viewer="{movable: false}">
+                                <img class="h80 cp" :src="item.subjectUrl" @click="$event.target.parentNode.$viewer.show()" :alt="item.uname+'创建的试卷'">
+                            </div>
+                        </span>
+                        <span v-else>{{ item.content.length > 120?(item.content.substring(0,120)+'...'):item.content }}</span>
+                    </td> 
+
+					<td v-if="!(examType==0)"> {{ item.correct_char ? item.correct_char : '-' }} </td>
+					<td :class="(!(examType==0) && item.myOptVal_char != item.correct_char)?'colored':''"> {{ item.myOptVal_char ? item.myOptVal_char : '-' }} </td>
+					<td :class="item.result == 1?'colored':''" v-if="!(examType==0)"> {{ item.result ===0?'正确':'错误' }} </td>
+					<td v-if="!(examType==0)">
+						<router-link :to="{
+							name:'answer_detail',
+							params:{
+								id:item.answerId
+							}
+						}" style="color: #38C6B6">查看详情</router-link>
+					</td>
+				</tr>
+			</tr>
+		</table>
+	</div>
+
+	<div>
+		<pageVue :pageData="page" @chekdpageCallcak="changedPage"></pageVue>
+	</div>
+</div>
+</template>
+
+<script>
+	import {resultList,numToChar} from '@/utils/dict.js'
+
+	export default {
+		name: "score_user_detail",
+		data() {
+			return {
+				params:{
+					pageNum: 1,
+					limit: 10,
+					totalCount: 1,
+					result: '',
+				},
+				examType:'',
+				resultList,
+				list:[]
+			}
+		},
+		methods:{
+			changedPage(index) {
+				this.params.pageNum = index;
+				initList.apply(this);
+			},
+			searchHandle(){
+				initList.apply(this);
+			}
+		},
+		computed: {
+			page() {
+				return {
+                    curPage: this.params.pageNum,//当前页吗
+                    totalCount: this.params.totalCount,//总条数
+                    pageSize: this.params.limit,//页面大小
+                }
+            },
+            successCount(){
+            	return this.list.filter(x=>x.result === 0).length;
+            },
+            errorCount(){
+            	return this.list.length - this.successCount;
+            }
+        },
+        created(){
+        	initList.apply(this);
+        }
+    }
+function initList(){
+	const recordId = this.$route.params.id
+	const examType = this.$route.query.examType
+	const params = {...this.params}
+	if(params.result < 0) delete params.result
+	this.$axios.get("/biz/score/exam/details/"+recordId,{
+		params
+	}).then(res=>{
+		if(res.success){
+			this.examType = examType;
+			this.list = res.obj.list;
+			this.list.forEach(x=>{
+				x.correct_char = x.subScoreOpts.filter(y=>y.isTrue === 0).map(y=>y.optionSeq).map(y=>numToChar(y)).sort((c1,c2)=>c1>c2?1:c1<c2?-1:0).join(",");
+				if (x.subjectType == 3){
+					x.myOptVal_char = x.sourceResults.map(y=>y.opinion).join("");
+				}else{
+					x.myOptVal_char = x.sourceResults.map(y=>numToChar(y.myOptVal)).sort((c1,c2)=>c1>c2?1:c1<c2?-1:0).join(",")
+				}
+				x.result = x.correct_char == x.myOptVal_char ? 0 : 1;
+			})
+			this.params.totalCount = res.obj.total;
+
+		}
+	})
+}
+
+</script>
+
+<style scoped>
+.colored{
+	color: red;
+}
+</style>

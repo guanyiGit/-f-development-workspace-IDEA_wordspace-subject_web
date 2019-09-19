@@ -1,0 +1,42 @@
+<template>
+    <div class="cont-main">
+        <Top></Top>
+        <div class="contner">
+            <Menu></Menu>
+            <router-view></router-view>
+        </div>
+    </div>
+</template>
+
+<script>
+
+    import Top from '@/components/layout/Top'
+    import Menu from '@/components/layout/Menu'
+
+    export default {
+        name: "Containner",
+        components: {
+            Top, Menu
+        }
+    }
+</script>
+
+<style scoped>
+    .cont-main{
+        margin: 0;
+        padding: 0;
+        width: 99.1vw;
+        height: 100vh;
+    }
+    .contner {
+        display: flex;
+        height: 94vh;
+        margin-top: 4px;
+    }
+    .contner>*:first-child{
+        flex: 200px;
+    }
+    .contner>*:last-child{
+        flex: 100%;
+    }
+</style>

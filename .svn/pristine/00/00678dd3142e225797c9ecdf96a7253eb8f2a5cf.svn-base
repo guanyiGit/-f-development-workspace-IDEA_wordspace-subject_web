@@ -1,0 +1,13 @@
+<template>
+    <h2>Wor</h2>
+</template>
+
+<script>
+    export default {
+        name: "Wor"
+    }
+</script>
+
+<style scoped>
+
+</style>

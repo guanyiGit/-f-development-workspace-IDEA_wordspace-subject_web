@@ -1,0 +1,14 @@
+import router from './index.js'
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
+		//需要权限
+
+    	//去读取cook
+    	//读到了放行 没有读到去登录
+    }
+    else {
+    	//不需要权限
+        next();
+    }
+})

@@ -1,0 +1,141 @@
+<template>
+	<div class="centoer">
+		<p class="title">
+			<font class="primary cp td-u" @click="$router.go(-4);">成绩查看</font> &gt; 
+			<font class="primary cp td-u" @click="$router.go(-3);">人员成绩</font> &gt; 
+			<font class="primary cp td-u" @click="$router.go(-2);">考试记录</font> &gt; 
+			<font class="primary cp td-u" @click="$router.back();">得分明细</font> &gt; 
+			<font>详情</font>
+		</p>
+		<div class="btns">
+			<el-button size="mini" type="primary" @click="$router.back();">返回</el-button>
+		</div>
+		
+		 <div class="selecteds">
+            <span>
+                活动名称：
+                    <span style="color: red;" class="mgr10">{{detail.examName}}</span>
+            </span>
+            <span>
+                参与人：
+                <span style="color: red;" class="mgr10">{{detail.name}}</span>
+            </span>
+            <span v-if="detail.result">
+                考生选择：
+                <span style="color: red;" class="mgr10">{{ elect }}</span>
+            </span>
+        </div>
+
+        <div class="bord-cm mgb30 pdt2" v-if="detail.subjectContent || !detail.url">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">试题内容</span>
+                <span>
+                   <font color="#c1c1c1">当前活动的试题内容</font>
+                </span>
+            </p>
+            <div>
+                <el-input disabled type="textarea" :rows="6" placeholder="无内容" :value="detail.subjectContent"></el-input>
+            </div>
+        </div>
+
+
+        <div class="bord-cm mgb30 pdt2" v-if="!detail.subjectContent && detail.url">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">试题图片</span>
+                <span>
+                    <font color="#c1c1c1">可以放大查看</font>
+                </span>
+                <div>
+                    <div v-viewer="{movable: false}">
+                        <img class="h150 w270 cp" :src="detail.url" @click="$event.target.parentNode.$viewer.show()" alt="试题图片">
+                    </div>
+                </div>
+            </p>
+        </div>
+
+        <div class="bord-cm mgb30 pdt2 ">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">选项</span>
+                <span>
+                    <font color="#c1c1c1">被勾选的为正确选项</font>
+                </span>
+            </p>
+            <div>
+                <ul class="ul-ad">
+                    <li class="dfl aic pdl10 mgt5" v-for="item in detail.list" :key="item.optionId">
+                        <span>
+                            <el-checkbox class="ras100" :value="item.isTrue === 0"></el-checkbox>
+                        </span>
+                        <span class="ww80 mgr20 mgl20">
+                            <el-input disabled :value="item.optionValue"></el-input>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bord-cm mgb30 pdt2 ">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">解析</span>
+                <span>
+                    <font color="#c1c1c1">本题的解析部分</font>
+                </span>
+            </p>
+            <div>
+                <el-input type="textarea" disabled :rows="6" placeholder="无内容" :value='detail.subjectAnalysis'> </el-input>
+            </div>
+        </div>
+
+        <div class="bord-cm mgb30 pdt2 ">
+            <p class="dfl aic bgf6 h40 ct mgb2">
+                <span class="dinb h35 lh35 bgc w90 t-c mgr20">考生评论</span>
+                <span>
+                    <font color="#c1c1c1">考生的评论或看法</font>
+                </span>
+            </p>
+            <div>
+                <el-input type="textarea" disabled :rows="6" placeholder="无内容" :value='detail.opinion'> </el-input>
+            </div>
+        </div>
+
+	</div>
+</div>
+</template>
+
+<script>
+	import {subjectDifficultyList, subjectModeList, sunjectTypeList,numToChar} from '@/utils/dict'
+    import ImgUpload from '@/components/imgUpload'
+    import LargeImg from '@/components/LargeImg'
+
+	export default {
+		name: "answer_detail",
+		data() {
+			return {
+               detail:{}
+			}
+		},
+		methods:{
+		},
+        created(){
+            initDetail.apply(this);
+        },
+        computed:{
+            elect(){
+                return numToChar(this.detail.result);
+            }
+        }
+    }
+
+function initDetail(){
+    const answerId = this.$route.params.id;
+    this.$axios.get("/biz/score/exam/details/info/"+answerId).then(res=>{
+        if(res.success){
+            this.detail = res.obj;
+        }
+    })
+}
+</script>
+
+<style scoped>
+
+</style>

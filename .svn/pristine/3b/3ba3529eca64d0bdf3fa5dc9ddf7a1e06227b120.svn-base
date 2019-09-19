@@ -1,0 +1,166 @@
+<template>
+    <div class="centoer">
+        <p class="title">活动管理</p>
+        <div class="btns">
+            <el-button type="primary" size="mini" @click="add">新增</el-button>
+            <el-button type="primary" size="mini">删除</el-button>
+            <!--<el-button type="primary" size="mini">模板下载</el-button>
+            <el-button type="warning" size="mini">删除</el-button>-->
+        </div>
+        <div class="selecteds">
+            <el-select v-model="params.type" popper-class="el-select" @change="sel" placeholder="活动分类">
+                <el-option v-for="item in options1"
+                           :label="item.text"
+                           :key="item.value"
+                           :value="item.value"
+                >
+                </el-option>
+            </el-select>
+            <el-select v-model="params.status" popper-class="el-select" @change="sel" placeholder="状态">
+                <el-option v-for="item in options2"
+                           :label="item.text"
+                           :key="item.value"
+                           :value="item.value"
+                >
+                </el-option>
+            </el-select>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                <!--<td></td>-->
+                <td>活动分类</td>
+                <td>活动名称</td>
+                <td>总分</td>
+                <td>考试时长</td>
+                <td>创建人</td>
+                <td>创建时间</td>
+                <td>考试生效时间</td>
+                <td>考试失效时间</td>
+                <td>状态</td>
+                <td>操作</td>
+            </tr>
+
+                <tr v-for="(item,index) in list" :key="index">
+                    <!--<td>{{index +1}}</td>-->
+                    <td>{{ item.examType==0?'问卷调查':(item.examType==1?'在线考试':'知识竞赛')}}</td>
+                    <td>{{item.examName}}</td>
+                    <td>{{item.totalScore}}</td>
+                    <td>{{item.examTime}}</td>
+                    <td>{{item.createBy}}</td>
+                    <td v-if="item.createTime">{{item.createTime | formatDate()}}</td>
+                    <td v-else>{{item.createTime}}</td>
+                    <td v-if="item.effectDate">{{item.effectDate | formatDate("yyyy-MM-dd HH:mm:ss")}}</td>
+                    <td v-else>{{item.effectDate}}</td>
+                    <td v-if="item.failureDate">{{item.failureDate | formatDate("yyyy-MM-dd HH:mm:ss")}}</td>
+                    <td v-else>{{item.failureDate}}</td>
+                    <td>{{item.examStatus==0?'未发布':(item.examStatus==1?'考试中':'已关闭')}}</td>
+                    <td v-if="item.examStatus==0">
+
+                        <router-link>发布考试 </router-link>
+                        <router-link>查看 </router-link>
+                        <router-link>修改 </router-link>
+                    </td>
+                    <td v-else-if="item.examStatus==1">
+                        关闭考试
+                        关闭考试
+                        关闭考试
+                        <router-link>查看 </router-link>
+                    </td>
+                    <td v-else>
+                        <router-link>查看 </router-link>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <div>
+            <!--<pageVue></pageVue>-->
+            <page-vue :pageData="pageData" @chekdpageCallcak="changedPage"></page-vue>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Exam",
+        data() {
+            return {
+                params:{//请求参数
+                    type:999,
+                    status:999,
+                    pageNum: 1,
+                    pageSize:6,
+                    searchKey:null
+                },
+                totalCount:0,
+                list:[],
+                options1:[
+                    {value:999,text:"活动分类"},
+                    {value:0,text:"问卷调查"},
+                    {value:1,text:"在线考试"},
+                    {value:2,text:"知识竞赛"}
+                ],
+                options2:[
+                    {value:999,text:"状态"},
+                    {value:0,text:"未发布"},
+                    {value:1,text:"考试中"},
+                    {value:2,text:"已关闭"}
+                ],
+
+
+            }
+        },
+        created() {
+            initData(this)
+        },
+        mounted() {
+
+        },
+        computed: {
+            //分页参数
+            pageData() {
+                return {
+                    curPage: this.params.pageNum,//当前页吗
+                    totalCount: this.totalCount,//总条数
+                    pageSize: this.params.pageSize,//页面大小}
+
+                }
+            },
+
+        },
+        methods:{
+            changedPage(pageNum){
+                this.params.pageNum = pageNum;
+                initData(this);
+            },
+            add: function(){
+                this.$router.push("addActiviti");
+            },
+            sel:function () {
+                initData(this)
+            }
+        }
+    }
+
+
+   function initData(_this) {
+        //_this.params.searchKey=_this.params.searchKey.trim()
+        _this.$axios({
+            method: 'post',
+            url: '/biz/activity/findExamList',
+            params: _this.params
+        }).then((res) => {
+            if (res.code==200) {
+                _this.totalCount=res.obj.total;
+                _this.list=res.obj.list;
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+</script>
+
+<style scoped>
+
+</style>

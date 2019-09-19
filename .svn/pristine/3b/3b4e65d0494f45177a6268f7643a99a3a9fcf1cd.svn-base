@@ -1,0 +1,39 @@
+/**
+ * 题目分类
+ * @type {*[]}
+ */
+export const subjectModeList = [
+    {seq: 0, desc: '交通法规'},
+    {seq: 1, desc: '民法知识'},
+    {seq: 2, desc: '刑法知识'},
+    {seq: 3, desc: '趣味知识'},
+    {seq: 4, desc: '其他知识'}
+]
+/**
+ *题目难度
+ * @type {*[]}
+ */
+export const subjectDifficultyList = [
+    {seq: 0, desc: '简单'},
+    {seq: 1, desc: '一般'},
+    {seq: 2, desc: '困难'},
+]
+
+/**
+ *题目状态
+ * @type {*[]}
+ */
+export const subjectStatusList = [
+    {seq: 0, desc: '未使用'},
+    {seq: 1, desc: '已使用'},
+    {seq: 2, desc: '已删除'},
+]
+
+/**
+ *题目状态
+ * @type {*[]}
+ */
+export const sunjectTypeList = [
+    {seq: 0, desc: '单选'},
+    {seq: 1, desc: '多选'},
+]

@@ -1,0 +1,68 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import Containner from '@/components/Containner'
+import Home from '@/views/index/Home'
+
+import Wor from '@/views/wor/Wor'
+import WorAdd from '@/views/wor/WorAdd'
+import WorView from '@/views/wor/WorView'
+
+import Score from '@/views/score/Score'
+import ScoreUsers from '@/views/score/ScoreUsers'
+import ScoreUserRecord from '@/views/score/ScoreUserRecord'
+import ScoreUserDetail from '@/views/score/ScoreUserDetail'
+import AnswerDetail from '@/views/score/AnswerDetail'
+
+import Exam from '@/views/exam/Exam'
+import Permission from '@/views/permission/Permission'
+import TestPaperList from '@/views/testPaperLib/TestPaperList'
+import AddTestPaper from '@/views/testPaperLib/AddTestPaper'
+import TopicSelection from '@/views/testPaperLib/TopicSelection'
+import addActiviti from '../views/exam/addActiviti'
+import activitiDetail from '../views/exam/activitiDetail'
+import addUser from '../views/permission/addUser'
+import userInfo from '../views/permission/userInfo'
+import SetUpScore from '@/views/testPaperLib/SetUpScore'
+import TestPaperInfo from '@/views/testPaperLib/TestPaperInfo'
+import QuestionAdd from '@/views/testPaperLib/QuestionAdd'
+import login from '@/views/login/login'
+Vue.use(Router)
+
+export default new Router({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes: [
+      {path: '/', name: 'login', redirect: '/login'},
+      {path: '/login', name: 'login', component: login},
+      { path: '/view', name: 'containner', component: Containner,redirect: '/home',
+      children:[
+          {path: 'home', name: 'home', component: Home},
+
+          {path: 'wor', name: 'wor', component: Wor },
+          {path: 'wor/add', name: 'wor_add', component: WorAdd},
+          {path: 'wor/view/:id', name: 'wor_view', component: WorView},
+
+
+          {path: 'score', name: 'score', component: Score},//考试成绩
+          {path: 'score/users/:id', name: 'score_users', component: ScoreUsers},//人员成绩
+          {path: 'score/users/record/:id', name: 'score_user_record', component: ScoreUserRecord},//人员考试记录
+          {path: 'score/users/record/detail/:id', name: 'score_user_detail', component: ScoreUserDetail},//得分明细
+          {path: 'score/users/record/detail/info/:id', name: 'answer_detail', component: AnswerDetail},//考生答题详情
+
+          {path: 'exam', name: 'exam', component: Exam},
+
+          {path: 'permission', name: 'permission', component: Permission},
+          {path: 'TestPaperList', name: 'TestPaperList', component: TestPaperList},//试卷库列表
+          {path: 'AddTestPaper', name: 'AddTestPaper', component: AddTestPaper},//新增试卷第一个页面
+          {path: 'TopicSelection', name: 'TopicSelection', component: TopicSelection},//选题页面
+          {path: 'addActiviti', name: 'addActiviti', component: addActiviti},//新增活动页面
+          {path: 'addUser', name: 'addUser', component: addUser},//新增活动页面
+          {path: 'userInfo', name: 'userInfo', component: userInfo},//用户详情
+          {path: 'SetUpScore', name: 'SetUpScore', component: SetUpScore},//设置分值页面
+          {path: 'TestPaperInfo/:paperId/:paperNumber/:paperTotalScore', name: 'TestPaperInfo', component: TestPaperInfo},//试卷详情
+          {path: 'activitiDetail', name: 'activitiDetail', component: activitiDetail},//活动详情
+          {path: 'QuestionAdd', name: 'QuestionAdd', component: QuestionAdd},//抽题新增：分类选择题目个数的页面
+      ]
+    },
+  ]
+})

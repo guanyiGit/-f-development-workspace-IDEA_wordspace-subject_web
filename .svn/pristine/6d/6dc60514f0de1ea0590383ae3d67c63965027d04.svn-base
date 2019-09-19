@@ -1,0 +1,50 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import Containner from '@/components/Containner'
+import Home from '@/views/index/Home'
+
+import Wor from '@/views/wor/Wor'
+import WorAdd from '@/views/wor/WorAdd'
+
+import Exam from '@/views/exam/Exam'
+import Score from '@/views/score/Score'
+import Permission from '@/views/permission/Permission'
+import TestPaperList from '@/views/testPaperLib/TestPaperList'
+import AddTestPaper from '@/views/testPaperLib/AddTestPaper'
+import TopicSelection from '@/views/testPaperLib/TopicSelection'
+import addActiviti from '../views/exam/addActiviti'
+import addUser from '../views/permission/addUser'
+import SetUpScore from '@/views/testPaperLib/SetUpScore'
+import TestPaperInfo from '@/views/testPaperLib/TestPaperInfo'
+import QuestionAdd from '@/views/testPaperLib/QuestionAdd'
+
+Vue.use(Router)
+
+export default new Router({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes: [
+    { path: '/', name: 'containner', component: Containner,
+      children:[
+          {path: 'home', name: 'home', component: Home},
+
+          {path: 'wor', name: 'wor', component: Wor },
+          {path: 'wor_add', name: 'wor_add', component: WorAdd},
+
+          {
+              path: 'exam', name: 'exam', component: Exam,
+          },
+          {path: 'score', name: 'score', component: Score},
+          {path: 'permission', name: 'permission', component: Permission},
+          {path: 'TestPaperList', name: 'TestPaperList', component: TestPaperList},//试卷库列表
+          {path: 'AddTestPaper', name: 'AddTestPaper', component: AddTestPaper},//新增试卷第一个页面
+          {path: 'TopicSelection', name: 'TopicSelection', component: TopicSelection},//选题页面
+            {path: 'addActiviti', name: 'addActiviti', component: addActiviti},//新增活动页面
+            {path: 'addUser', name: 'addUser', component: addUser},//新增活动页面
+          {path: 'SetUpScore', name: 'SetUpScore', component: SetUpScore},//设置分值页面
+          {path: 'TestPaperInfo/:paperId/:paperNumber/:paperTotalScore', name: 'TestPaperInfo', component: TestPaperInfo},//试卷详情
+          {path: 'QuestionAdd', name: 'QuestionAdd', component: QuestionAdd},//抽题新增：分类选择题目个数的页面
+      ]
+    },
+  ]
+})

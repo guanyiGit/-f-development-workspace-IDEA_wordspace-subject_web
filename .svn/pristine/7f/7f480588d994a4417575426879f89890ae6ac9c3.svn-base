@@ -1,0 +1,47 @@
+<template>
+    <div class="layout-menu">
+        <ul>
+            <router-link tag="li" :to="{name:item.link}" v-for="(item,index) in menus" :key="index"><span>{{ item.name }}</span></router-link>
+            <!--<li v-for="(item,index) in menus" :key="index"><span>{{ item.name }}</span></li>-->
+        </ul>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Menu",
+        data() {
+            return {
+                menus: [
+                    {link: 'home', name: '首页'},
+                    {link: 'wor', name: '试题库'},
+                    {link: 'exam', name: '活动管理'},
+                    {link: 'score', name: '成绩查看'},
+                    {link: 'permission', name: '用户权限'},
+                ]
+            }
+        }
+    }
+</script>
+
+<style lang="scss" scoped>
+    .layout-menu {
+        width: 180px;
+        background-color: #319D8E;
+        height: 100%;
+        min-height: 600px;
+        li {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+        }
+        li:hover{
+            color: lightgreen;
+            background-color: olivedrab;
+        }
+    }
+</style>

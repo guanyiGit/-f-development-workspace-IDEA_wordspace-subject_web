@@ -1,0 +1,13 @@
+<template>
+    <h2>Exam</h2>
+</template>
+
+<script>
+    export default {
+        name: "Exam"
+    }
+</script>
+
+<style scoped>
+
+</style>

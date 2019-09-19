@@ -1,0 +1,136 @@
+<template>
+    <div class="centoer">
+        <p class="title">试题库</p>
+        <div class="btns">
+            <el-button type="primary" size="mini">新增</el-button>
+            <el-button type="primary" size="mini">导入</el-button>
+            <el-button type="primary" size="mini">模板下载</el-button>
+            <el-button type="warning" size="mini">删除</el-button>
+        </div>
+        <div class="selecteds">
+            <el-select v-model="value" popper-class="el-select" placeholder="试题分类"/>
+            <el-select v-model="value" popper-class="el-select" placeholder="难度"/>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <td></td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+            </table>
+
+            <!--<el-table :data="tableData" height="250" border style="width: 100%">-->
+                <!--<el-table-column prop="date" label="日期" width="180"></el-table-column>-->
+                <!--<el-table-column prop="name" label="姓名" width="180"></el-table-column>-->
+                <!--<el-table-column prop="address" label="地址"></el-table-column>-->
+            <!--</el-table>-->
+        </div>
+        <div>
+            <pageVue></pageVue>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Wor",
+        data() {
+            return {
+                rows: 100,
+                perPage: 10,
+                currentPage: 1,
+                value: '',
+                tableData: [{
+                    date: '2016-05-03',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-02',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-04',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-01',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-08',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-06',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-07',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }]
+            }
+        },
+        mounted() {
+
+        },
+        methods:{
+
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>

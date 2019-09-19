@@ -1,0 +1,105 @@
+<template>
+    <div class="centoer">
+        <p class="title">试题库</p>
+        <div class="btns">
+            <el-button type="primary" size="mini">新增</el-button>
+            <el-button type="primary" size="mini">导入</el-button>
+            <el-button type="primary" size="mini">模板下载</el-button>
+            <el-button type="warning" size="mini">删除</el-button>
+        </div>
+        <div class="selecteds">
+            <el-select v-model="value" popper-class="el-select" placeholder="试题分类"/>
+            <el-select v-model="value" popper-class="el-select" placeholder="难度"/>
+        </div>
+        <div class="tablPerp">
+            <table class="mtable">
+                <tr>
+                    <td class="dtc">
+                        <input class="h20 w20 vam cp bge" type="checkbox">
+                    </td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr>
+                    <td class="dtc">
+                        <input class="h20 w20 vam cp" type="checkbox">
+                    </td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr>
+                    <td class="dtc">
+                        <input class="h20 w20 vam cp" type="checkbox">
+                    </td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+                <tr>
+                    <td class="dtc">
+                        <input class="h20 w20 vam cp" type="checkbox">
+                    </td>
+                    <td>标题</td>
+                    <td>试题分类</td>
+                    <td>试题名称</td>
+                    <td>难度</td>
+                    <td>创建人</td>
+                    <td>创建时间</td>
+                    <td>状态</td>
+                    <td>操作</td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <pageVue></pageVue>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Wor",
+        data() {
+            return {
+                value: '',
+                params:{
+                    pageNum:1,
+                    limit:10
+                }
+            }
+        },
+        mounted() {
+
+        },
+        methods: {},
+        created(){
+            list.apply(this);
+        }
+    }
+    function list() {
+        this.$axios.get("/wor/test").then(res=>{
+            console.log(res)
+        })
+    }
+</script>
+
+<style scoped>
+
+</style>
